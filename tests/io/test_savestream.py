@@ -1,5 +1,5 @@
 
-from typing import Self
+from typing import Self, Type
 from polyparser.io.savestream import *
 
 import pytest
@@ -33,19 +33,44 @@ def test_saved_state_lock ():
 
 class CTestSavedState(SavedState):
     index: int
-    def __init__(self, index: int) -> None:
+    offset: int
+    def __init__(self, index: int, offset: int = 0) -> None:
         super().__init__()
         
-        self.index = index
+        self.index = index + offset
+        self.offset = offset
 
     @staticmethod
-    def empty() -> Self:
-        return CTestSavedState(0)
+    def empty(offset: int = 0) -> Self:
+        return CTestSavedState(0, offset)
     def copy_into(self, other: "CTestSavedState"):
         other.index = self.index
+class CTestSaveStream(SaveStream[CTestSavedState]):
+    def __init__(self) -> None:
+        super().__init__(CTestSavedState)
 
 def test_simple_save_stream_modification ():
     stream = SaveStream[CTestSavedState](CTestSavedState)
+
+    with stream as (atomic, state):
+        assert atomic.old.index   == 0
+        assert atomic.bound.index == 0
+
+        assert state.index == 0
+        assert state == atomic.bound
+        assert state != atomic.old
+
+        state.index = 1
+        assert atomic.bound.index == 1
+        assert atomic.old.index   == 0
+        assert state.index == 1
+    
+    assert stream._SaveStream__state.index == 1
+
+    with stream as (atomic, state):
+        assert state.index == 1
+def test_custom_save_stream_modification ():
+    stream = CTestSaveStream()
 
     with stream as (atomic, state):
         assert atomic.old.index   == 0
@@ -113,6 +138,16 @@ def test_save_stream_nested_atomics ():
         assert state.index == 1
         
     assert stream._SaveStream__state.index == 1
+def test_save_stream_nested_atomics_offset ():
+    stream = SaveStream[CTestSavedState](CTestSavedState, 1)
+
+    with stream as (atomic, state):
+        with stream as (a2, s2):
+            s2.index = 2
+            assert s2.index == 2 and state.index == 1
+        assert state.index == 2
+        
+    assert stream._SaveStream__state.index == 2
 def test_save_stream_nested_atomics_with_rollback ():
     stream = SaveStream[CTestSavedState](CTestSavedState)
 

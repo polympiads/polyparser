@@ -11,10 +11,10 @@ class SavedState:
         self.__locked = False
 
     @staticmethod
-    def empty () -> Self:
+    def empty (*empty_args) -> Self:
         assert False, "Not implemented in sub class"
-    def copy (self) -> Self:
-        other = type(self).empty()
+    def copy (self, *empty_args) -> Self:
+        other = type(self).empty(*empty_args)
         self.copy_into(other)
         return other
     def copy_into (self, other: Self):
@@ -66,16 +66,18 @@ class SaveStreamAtomic(Generic[T]):
         return self.__old
 class SaveStream (Generic[T]):
     __member_class: Type[T]
+    __empty_args  : List[Any]
 
     __atomics: List[SaveStreamAtomic[T]]
     __state  : T
 
-    def __init__(self, member_class: Type[T]) -> None:
+    def __init__(self, member_class: Type[T], *empty_args) -> None:
         super().__init__()
 
         self.__member_class = member_class
+        self.__empty_args   = empty_args
 
-        self.__state = member_class.empty()
+        self.__state = member_class.empty(*empty_args)
 
         self.__atomics = []
 
@@ -84,7 +86,7 @@ class SaveStream (Generic[T]):
         if old_state.is_locked:
             raise SaveStreamError("Cannot use with stream when the current with has been rollbacked")
 
-        new_state = self.__state.copy()
+        new_state = self.__state.copy(*self.__empty_args)
 
         self.__state = new_state
         self.__atomics.append( SaveStreamAtomic(new_state, old_state) )
