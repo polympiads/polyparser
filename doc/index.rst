@@ -6,9 +6,10 @@
 polyparser : generic LL(1) parser for polympiads projects
 =========================================================
 
-The `polyparser` projects helps you get started with parsing difficult text formats, and can scale to support any LL(1) grammar under certain assumptions.
+The ``polyparser`` projects helps you get started with parsing difficult text formats, and can scale to support any LL(1) grammar under certain assumptions.
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :maxdepth: 10
+   :hidden:
 
+   reference/index
