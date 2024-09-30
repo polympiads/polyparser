@@ -3,6 +3,6 @@ from typing import Any
 
 import pytest
 
-def check_immutable (object, varname: str, newvalue):
-    with pytest.raises(AttributeError):
+def check_immutable (object, varname: str, newvalue, exception=AttributeError):
+    with pytest.raises(exception):
         setattr(object, varname, newvalue)
