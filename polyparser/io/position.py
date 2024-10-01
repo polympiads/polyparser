@@ -1,5 +1,21 @@
 
-class Position:
+"""
+This class represents a range of positions inside a file
+
+  @private __line         the starting line
+  @private __column       the starting column
+  @private __height       the height of the position range
+  @private __last_column  the column on the last line
+  @private __render       the associated file reader
+
+  @property line        = __line
+  @property column      = __column
+  @property height      = __height
+  @property last_column = __last_column
+
+Further information is available at : https://polympiads.github.io/polyparser/reference/api/io.html#class-positionrange
+"""
+class PositionRange:
     __line   : int
     __column : int
 

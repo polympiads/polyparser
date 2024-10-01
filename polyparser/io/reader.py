@@ -1,9 +1,20 @@
 
 from typing import Self
 
-from polyparser.io.position import Position
+from polyparser.io.position import PositionRange
 from polyparser.io.savestream import SaveStream, SavedState
 
+"""
+This class represents the state of the file reader.
+It is represented as an offset in the reader's content
+
+It also allows to generate a position range using the
+Initial state and the current state.
+
+Works also as a queue-like object on the characters of the buffer.
+
+Further information is available at : https://polympiads.github.io/polyparser/reference/api/io.html#class-filereaderstate-savedstate
+"""
 class FileReaderState(SavedState):
     __reader: "FileReader"
     __offset: int
@@ -55,8 +66,8 @@ class FileReaderState(SavedState):
             self.__current_column += 1
 
         return result
-    def as_position (self) -> "Position":
-        return Position(
+    def as_position (self) -> "PositionRange":
+        return PositionRange(
             self.__reader,
             self.__start_line, self.__start_column, 
             self.__current_line   - self.__start_line   + 1,
@@ -68,6 +79,15 @@ class FileReaderState(SavedState):
     def __len__(self):
         return self.size
 
+"""
+This class represents the file reader as a save stream,
+You can instantiate it by passing the path to its constructor,
+And you can then retrieve all data using the path and content properties.
+
+You can also use it as a save stream by applying atomic modifications on it.
+
+Further information is available at : https://polympiads.github.io/polyparser/reference/api/io.html#class-filereader-savestream-filereaderstate
+"""
 class FileReader(SaveStream[FileReaderState]):
     __path    : str
     __content : str

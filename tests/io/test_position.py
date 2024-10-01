@@ -1,12 +1,12 @@
 
-from polyparser.io.position import Position
+from polyparser.io.position import PositionRange
 from polyparser.io.reader import FileReader
 from tests.utils.immutable import check_immutable
 
 def test_simple_position ():
     reader = FileReader("tests/io/file_tests/01.txt")
 
-    pos = Position(reader, 0, 0, 1, 10)
+    pos = PositionRange(reader, 0, 0, 1, 10)
 
     assert pos.line   == 0
     assert pos.column == 0

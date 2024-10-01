@@ -1,9 +1,22 @@
 
 from typing import Any, Generic, List, Self, Tuple, Type, TypeVar
 
+"""
+This class represents an exception for save streams
+
+Further information is available at : https://polympiads.github.io/polyparser/reference/api/io.html#class-savestreamerror
+"""
 class SaveStreamError(Exception):
     pass
 
+"""
+This class represents a saved state for a save stream.
+
+It can be locked and can never be modified again, but this should never be called outside of the module.
+You may know whether it is locked by reading the is_locked property.
+
+Further information is available at : https://polympiads.github.io/polyparser/reference/api/io.html#class-savedstate
+"""
 class SavedState:
     __locked: bool
 
@@ -35,6 +48,15 @@ class SavedState:
 
 T = TypeVar("T", bound=SavedState)
 
+"""
+This class represents an atomic modification on a save stream.
+
+The modification can be rolled back once, in which case it locks the state.
+
+The properties bound and old allow you to get the state before modification and current state.
+
+Further information is available at : https://polympiads.github.io/polyparser/reference/api/io.html#class-savestreamatomic-t-extends-savedstate
+"""
 class SaveStreamAtomic(Generic[T]):
     __bound: T
     __old  : T
@@ -64,6 +86,17 @@ class SaveStreamAtomic(Generic[T]):
     @property
     def old (self):
         return self.__old
+    
+"""
+This class represents a save stream.
+
+It should be instantiated with the type of the saved state and the arguments for the empty static method.
+
+A great example is in the FileReader. You also have access to the with keyboard to get an atomic modification object
+With the current state so you can read, modify and rollback.
+
+Further information is available at : https://polympiads.github.io/polyparser/reference/api/io.html#class-savestream-t-extends-savedstate
+"""
 class SaveStream (Generic[T]):
     __member_class: Type[T]
     __empty_args  : List[Any]
