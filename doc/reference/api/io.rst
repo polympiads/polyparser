@@ -213,7 +213,7 @@ Module ``polyparser.io.position``
 ---------------------------------
 
 ``class PositionRange``
-~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~
 
 This class represents a position range in a file, associated with the reader.
 
