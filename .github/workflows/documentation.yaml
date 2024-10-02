@@ -25,19 +25,21 @@ jobs:
 
           mkdir _pages_build
           for branch in $branches; do
-            git checkout $branch
+            if [[ "$branch" != "gh-pages" ]]; then
+              git checkout $branch
 
-            branch_target="_pages_build/$branch"
-            if [[ "$branch" == "release" ]]; then
-              branch_target="_pages_build"
-            else
-              mkdir $branch_target
-            fi
+              branch_target="_pages_build/$branch"
+              if [[ "$branch" == "release" ]]; then
+                branch_target="_pages_build"
+              else
+                mkdir $branch_target
+              fi
 
-            if [ -d "doc" ]; then
-              echo "Found documentation for branch $branch"
+              if [ -d "doc" ]; then
+                echo "Found documentation for branch $branch"
 
-              sphinx-build doc $branch_target > /dev/null
+                sphinx-build doc $branch_target > /dev/null
+              fi
             fi
           done
       - name: Deploy to GitHub Pages
