@@ -35,8 +35,6 @@ html_static_path = ['_static']
 html_version_root = "https://polympiads.github.io/polyparser/"
 
 html_sidebars = {
-   '**': ['globaltoc.html', 'sourcelink.html', 'searchbox.html', 'versions.html'],
-   'using/windows': ['windows-sidebar.html', 'searchbox.html'],
+   '**': ['about.html', 'searchbox.html', 'navigation.html', 'versions.html']
 }
 html_context = module.generate_gitdata(html_version_root)
-print(html_context)
