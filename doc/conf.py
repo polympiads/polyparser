@@ -32,6 +32,8 @@ exclude_patterns = []
 html_theme = 'alabaster'
 html_static_path = ['_static']
 
+highlight_language = "python"
+
 html_version_root = "https://polympiads.github.io/polyparser/"
 
 html_sidebars = {
