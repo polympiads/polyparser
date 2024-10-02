@@ -14,8 +14,8 @@ def generate_gitdata (version_root):
         "all_branches": [
             {
                 "name": branch.strip(),
-                "path": version_root if git_branch == "release" else version_root + branch
+                "path": version_root if branch == "release" else version_root + branch
             }
-            for branch in all_branches
+            for branch in all_branches if branch != "gh-pages"
         ]
     }
