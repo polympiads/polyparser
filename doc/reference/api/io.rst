@@ -220,7 +220,7 @@ Module ``polyparser.io.position``
 
 This class represents a position range in a file, associated with the reader.
 
-It is represented as a staring line and starting column in the immutable properties ``line`` and ``column``.
+It is represented as a starting line and starting column in the immutable properties ``line`` and ``column``.
 It also contains the height and the ending column in the immutable properties ``height`` and ``last_column``.
 
 .. toctree::
