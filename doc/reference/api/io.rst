@@ -9,6 +9,7 @@ This page documents the inner API of the ``polyparser.io`` package. It possesses
 
 #. :ref:`polyparser.io.savestream <polyparser_io_savestream>` - Module responsible for saveable streams
 #. :ref:`polyparser.io.reader <polyparser_io_reader>` - Module containing readers
+#. :ref:`polyparser.io.position <polyparser_io_position>` - Module containing position utilities
 
 .. _polyparser_io_savestream:
 
@@ -208,6 +209,8 @@ You can then use it as a ``SaveStream`` where the state is a ``FileReaderState``
                 break
         if not is_valid: # if it is invalid, roll back
             atomic.rollback()
+
+.. _polyparser_io_position:
 
 Module ``polyparser.io.position``
 ---------------------------------
