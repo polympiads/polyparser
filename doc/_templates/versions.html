@@ -2,6 +2,6 @@
 <ul>
     {{ html_sidebars }}
     {%- for branch in all_branches %}
-    <li><a href="{{ branch.path }}">{{ branch.name }}</a> {% if branch.name == git_branch %}(Current){% endif %}</li>
+    <li><p style="margin: 0;"><a href="{{ branch.path }}">{{ branch.name }}</a> {% if branch.name == git_branch %}(Current){% endif %}</p></li>
     {%- endfor %}
 </ul>
