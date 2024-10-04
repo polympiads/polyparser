@@ -28,4 +28,4 @@ class NameLexerRule(LexerRule):
             while len(state) != 0 and self.is_valid(state.peek()):
                 state.poll()
             
-            return Token(self.token_type, state.as_position())
+            return Optional( Token(self.token_type, state.as_position()) )

@@ -44,5 +44,8 @@ def test_name_rule ():
     words = [ x for x in content.split(' ') if len(x) != 0 and rule.is_valid_first(x[0]) ]
 
     for (index, token) in enumerate(tokens):
+        assert token.exists
+        token = token.value
+
         assert token.token_type == "NAME"
         assert reader.content[token.position.column - 1: token.position.last_column - 1] == words[index]

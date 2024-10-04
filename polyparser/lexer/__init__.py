@@ -31,7 +31,7 @@ class Lexer:
 
                     assert False
                 
-                if next_token.exists:
+                if next_token.exists and next_token.value != None:
                     array.append( next_token.value )
             
             return array

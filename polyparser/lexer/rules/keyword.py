@@ -65,11 +65,13 @@ class KeywordLexerRule(LexerRule):
 
             atomic.rollback()
         
-        if param is None: return None
+        if offset == 0: return None
 
         with reader as (atomic, state):
             for _ in range( offset ):
                 state.poll()
-        
+
+            if param is None:
+                return Optional( None )
             return Optional( Token( param, state.as_position() ) )
         
