@@ -1,6 +1,11 @@
 
 from typing import TYPE_CHECKING, Any
 
+"""
+This class represents a token type
+
+Further information is available at : https://polympiads.github.io/polyparser/reference/api/lexer.html#module-type-class-tokentype
+"""
 class TokenType:
     factory: "TokenTypeFactory"
 

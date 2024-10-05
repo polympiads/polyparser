@@ -3,6 +3,11 @@ from typing import Any
 from polyparser.io.position import PositionRange
 from polyparser.lexer.token.type import TokenType
 
+"""
+This class represents a lexed token
+
+Further information is available at : https://polympiads.github.io/polyparser/reference/api/lexer.html#default-module-class-token
+"""
 class Token:
     token_type : TokenType
     position   : PositionRange

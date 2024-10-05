@@ -5,7 +5,11 @@ from polyparser.lexer.rules.abstract import LexerRule
 from polyparser.lexer.token import Token
 from polyparser.utils.optional import Optional
 
+"""
+This class represents a lexer
 
+Further information is available at : https://polympiads.github.io/polyparser/reference/api/lexer.html#module-polyparser-lexer
+"""
 class Lexer:
     __rules: List[LexerRule]
 
@@ -31,7 +35,7 @@ class Lexer:
 
                     assert False
                 
-                if next_token.exists and next_token.value != None:
+                if next_token.exists:
                     array.append( next_token.value )
             
             return array

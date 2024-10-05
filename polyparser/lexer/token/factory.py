@@ -1,6 +1,11 @@
 
 import enum
 
+"""
+This class represents a token type factory, used to generate the alphabet of token types
+
+Further information is available at : https://polympiads.github.io/polyparser/reference/api/lexer.html#module-factory-class-tokentypefactory
+"""
 class TokenTypeFactory:
     def __init__ (self, name: str):
         self.name  = name

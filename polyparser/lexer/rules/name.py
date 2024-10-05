@@ -6,6 +6,11 @@ from polyparser.lexer.token.type import TokenType
 from polyparser.utils.optional import Optional
 
 
+"""
+This class represents a lexing rule that lexes names
+
+Further information is available at : https://polympiads.github.io/polyparser/reference/api/lexer.html#module-name-class-namelexerrule
+"""
 class NameLexerRule(LexerRule):
     def __init__(self, token_type: TokenType) -> None:
         super().__init__()

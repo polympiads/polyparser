@@ -6,6 +6,12 @@ from polyparser.lexer.token import Token
 from polyparser.lexer.token.type import TokenType
 from polyparser.utils.optional import Optional
 
+"""
+This class represents a Trie of token types
+
+Further information on trie is available at : https://en.wikipedia.org/wiki/Trie
+Further information is available at : https://polympiads.github.io/polyparser/reference/api/lexer.html#module-keyword-class-keywordlexerrule
+"""
 class TokenTypeTrie:
     value: Optional[TokenType]
 
@@ -37,6 +43,11 @@ class TokenTypeTrie:
             return self.nexts[character]
         return None
 
+"""
+This class represents a lexing rule to convert a set of sequences into tokens of a certain kind
+
+Further information is available at : https://polympiads.github.io/polyparser/reference/api/lexer.html#module-keyword-class-keywordlexerrule
+"""
 class KeywordLexerRule(LexerRule):
     def __init__(self, keywords: Dict[str, TokenType]) -> None:
         super().__init__()
@@ -72,6 +83,6 @@ class KeywordLexerRule(LexerRule):
                 state.poll()
 
             if param is None:
-                return Optional( None )
+                return Optional()
             return Optional( Token( param, state.as_position() ) )
         

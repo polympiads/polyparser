@@ -5,7 +5,11 @@ from polyparser.lexer.token import Token
 from polyparser.lexer.token.type import TokenType
 from polyparser.utils.optional import Optional
 
+"""
+This class represents a lexing rule that lexes strings
 
+Further information is available at : https://polympiads.github.io/polyparser/reference/api/lexer.html#module-string-class-stringlexerrule
+"""
 class StringLexerRule(LexerRule):
     def __init__(self, sequence: str, token_type: TokenType):
         self.sequence   = sequence

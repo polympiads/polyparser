@@ -4,6 +4,11 @@ from typing import Any, Generic, TypeVar
 
 T = TypeVar("T")
 
+"""
+This class represents an optional object
+
+Further information is available at : https://polympiads.github.io/polyparser/reference/api/utils.html#class-optional-t
+"""
 class Optional(Generic[T]):
     __has_object: bool
     __value     : T
