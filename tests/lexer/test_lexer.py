@@ -1,7 +1,12 @@
 
+import string
+
+import pytest
 from polyparser.io.reader import FileReader
 from polyparser.lexer import Lexer
+from polyparser.lexer.rules.ignore import IgnoreLexerRule
 from polyparser.lexer.rules.keyword import KeywordLexerRule
+from polyparser.lexer.rules.name import NameLexerRule
 
 
 def test_lexer_eq_neq_set ():
@@ -40,3 +45,11 @@ def test_lexer_eq_neq_set ():
          and eq4.position.column == 6 \
          and eq4.position.last_column == 7 \
          and eq4.position.height == 1
+
+def test_lexer_fail ():
+    reader = FileReader( "tests/lexer/rules/file_tests/simple-name.txt" )
+    
+    lexer = Lexer( [ NameLexerRule("NAME"), IgnoreLexerRule(string.whitespace + ".,;") ] )
+
+    with pytest.raises(AssertionError):
+        tokens = lexer.try_lexing(reader)
