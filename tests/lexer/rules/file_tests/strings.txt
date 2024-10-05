@@ -1,0 +1,3 @@
+"abcdef123"
+"abc\"hi"
+"abc\nhi"
