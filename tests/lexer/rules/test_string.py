@@ -1,4 +1,5 @@
 
+import pytest
 from polyparser.io.reader import FileReader
 from polyparser.lexer import Lexer
 from polyparser.lexer.rules.ignore import IgnoreLexerRule
@@ -31,3 +32,13 @@ def test_strings ():
         assert word.position.height == 1
         assert word.position.line == index
         index += 1
+def test_non_finished_string ():
+    reader = FileReader( "tests/lexer/rules/file_tests/strings-false.txt" )
+
+    lexer = Lexer( [
+        StringLexerRule( "\"\"\"", "STRING" ),
+        IgnoreLexerRule(string.whitespace)
+    ] )
+
+    with pytest.raises(AssertionError):
+        lexer.try_lexing(reader)

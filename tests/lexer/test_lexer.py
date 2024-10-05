@@ -53,3 +53,6 @@ def test_lexer_fail ():
 
     with pytest.raises(AssertionError):
         tokens = lexer.try_lexing(reader)
+
+def test_json_lexer ():
+    pass
