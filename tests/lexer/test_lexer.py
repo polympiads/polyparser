@@ -7,6 +7,7 @@ from polyparser.lexer import Lexer
 from polyparser.lexer.rules.ignore import IgnoreLexerRule
 from polyparser.lexer.rules.keyword import KeywordLexerRule
 from polyparser.lexer.rules.name import NameLexerRule
+from polyparser.lexer.rules.string import StringLexerRule
 
 
 def test_lexer_eq_neq_set ():
@@ -55,4 +56,30 @@ def test_lexer_fail ():
         tokens = lexer.try_lexing(reader)
 
 def test_json_lexer ():
-    pass
+    reader = FileReader( "tests/lexer/rules/file_tests/json-file-test.json" )
+    lexer  = Lexer( [
+        KeywordLexerRule(
+            {
+                "{": "LCB", "}": "RCB",
+                "[": "LSB", "]": "RSB",
+                ":": "BIND", ",": "COMMA"
+            }
+        ),
+        StringLexerRule( "\"", "STRING" ),
+        IgnoreLexerRule(string.whitespace)
+    ] )
+
+    lines = reader.content.split("\n")
+    token_per_line = [[] for _ in range(len(lines))]
+
+    for token in lexer.try_lexing(reader):
+        token_per_line[token.position.line - 1].append( token )
+    
+    for line, tokens in zip(lines, token_per_line):
+        appears = [False for _ in range(len(line))]
+        for token in tokens:
+            for index in range(token.position.column - 1, token.position.last_column - 1):
+                appears[index] = True
+        
+        for index in range(len(line)):
+            assert appears[index] != line[index].isspace()
