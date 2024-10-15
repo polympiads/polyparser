@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Lexer &#8212; polyparser 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=cb25574f" />
+    <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Utils" href="utils.html" />
+    <link rel="prev" title="Input / Output" href="io.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="lexer">
+<span id="id1"></span><h1>Lexer<a class="headerlink" href="#lexer" title="Link to this heading">¶</a></h1>
+<p>This page documents the inner API of the <code class="docutils literal notranslate"><span class="pre">polyparser.lexer</span></code> package. It possesses the following interesting modules and packages</p>
+<ol class="arabic simple">
+<li><p><a class="reference internal" href="#polyparser-lexer-token"><span class="std std-ref">polyparser.lexer.token</span></a> - Package containing token classes</p></li>
+<li><p><a class="reference internal" href="#polyparser-lexer-rules"><span class="std std-ref">polyparser.lexer.rules</span></a> - Package containing lexing rules</p></li>
+<li><p><a class="reference internal" href="#polyparser-lexer-init"><span class="std std-ref">polyparser.lexer</span></a> - Module containing the lexer</p></li>
+</ol>
+<section id="package-polyparser-lexer-token">
+<span id="polyparser-lexer-token"></span><h2>Package <code class="docutils literal notranslate"><span class="pre">polyparser.lexer.token</span></code><a class="headerlink" href="#package-polyparser-lexer-token" title="Link to this heading">¶</a></h2>
+<section id="module-factory-class-tokentypefactory">
+<h3>Module <code class="docutils literal notranslate"><span class="pre">factory</span></code> - <code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">TokenTypeFactory</span></code><a class="headerlink" href="#module-factory-class-tokentypefactory" title="Link to this heading">¶</a></h3>
+<p>This module contains a token type factory used to generate the alphabet of token types.</p>
+<section id="constructor-init-self-name-str">
+<h4>Constructor <code class="docutils literal notranslate"><span class="pre">__init__(self,</span> <span class="pre">name:</span> <span class="pre">str)</span></code><a class="headerlink" href="#constructor-init-self-name-str" title="Link to this heading">¶</a></h4>
+<p>Creates a factory object, with a resulting alphabet that has the name <code class="docutils literal notranslate"><span class="pre">name</span></code>.
+The resulting alphabet is an enumeration.</p>
+</section>
+<section id="method-add-token-type-self-name-str">
+<h4>Method <code class="docutils literal notranslate"><span class="pre">add_token_type(self,</span> <span class="pre">name:</span> <span class="pre">str)</span></code><a class="headerlink" href="#method-add-token-type-self-name-str" title="Link to this heading">¶</a></h4>
+<p>Adds a token type with name <code class="docutils literal notranslate"><span class="pre">name</span></code> as the name of the symbol and put it into the alphabet.</p>
+</section>
+<section id="method-as-enumeration-self">
+<h4>Method <code class="docutils literal notranslate"><span class="pre">as_enumeration(self)</span></code><a class="headerlink" href="#method-as-enumeration-self" title="Link to this heading">¶</a></h4>
+<p>Returns an enumeration representing the entire alphabet.</p>
+</section>
+</section>
+<section id="module-type-class-tokentype">
+<h3>Module <code class="docutils literal notranslate"><span class="pre">type</span></code> - <code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">TokenType</span></code><a class="headerlink" href="#module-type-class-tokentype" title="Link to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">TokenType</span></code> is a class instantiating objects that are fully immutable.
+The fields and the elements in the constructor are the <code class="docutils literal notranslate"><span class="pre">factory</span></code> that created it and its <code class="docutils literal notranslate"><span class="pre">name</span></code>.</p>
+</section>
+<section id="default-module-class-token">
+<h3>Default Module - <code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">Token</span></code><a class="headerlink" href="#default-module-class-token" title="Link to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">Token</span></code> is a class instantiating objects that are fully immutable.
+The fields and the elements in the constructor are the <code class="docutils literal notranslate"><span class="pre">token_type</span></code> it is representing and
+the <code class="docutils literal notranslate"><span class="pre">position</span></code> representing the position range of the token.</p>
+</section>
+</section>
+<section id="package-polyparser-lexer-rules">
+<span id="polyparser-lexer-rules"></span><h2>Package <code class="docutils literal notranslate"><span class="pre">polyparser.lexer.rules</span></code><a class="headerlink" href="#package-polyparser-lexer-rules" title="Link to this heading">¶</a></h2>
+<p>A lexing rule is an object possessing a single function <code class="docutils literal notranslate"><span class="pre">try_lexing(reader:</span> <span class="pre">FileReader)</span></code> that needs to return an <code class="docutils literal notranslate"><span class="pre">Optional[Token]</span></code> object or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+<ol class="arabic simple">
+<li><p>If the return value is <code class="docutils literal notranslate"><span class="pre">None</span></code>, the state of the reader should have been rolled back and it means it was unsuccessful in reading any token.</p></li>
+<li><p>If the return value is <code class="docutils literal notranslate"><span class="pre">Optional()</span></code>, it means the lexing was successful and the state must have polled at least one character, but the characters were ignored (for example for whitespaces).</p></li>
+<li><p>If it is <code class="docutils literal notranslate"><span class="pre">Optional(token)</span></code>, it means the lexing was successful and the state must have polled at least one character, and they have generated a token <code class="docutils literal notranslate"><span class="pre">token</span></code> out of it.</p></li>
+</ol>
+<p>The interface is described into the <code class="docutils literal notranslate"><span class="pre">abstract</span></code> module containing the <code class="docutils literal notranslate"><span class="pre">LexerRule</span></code> base class.</p>
+<section id="module-name-class-namelexerrule">
+<h3>Module <code class="docutils literal notranslate"><span class="pre">name</span></code> - <code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">NameLexerRule</span></code><a class="headerlink" href="#module-name-class-namelexerrule" title="Link to this heading">¶</a></h3>
+<p>This rule describes the usual name lexing rule, and the token type of the name tokens must be passed in the constructor.
+The lexing happens in the following way :</p>
+<ol class="arabic simple">
+<li><p>The first character must be either a letter of the english alphabet or an underscore.</p></li>
+<li><p>The other characters can be either letters of the english alphabet, digits or underscores.</p></li>
+</ol>
+</section>
+<section id="module-string-class-stringlexerrule">
+<h3>Module <code class="docutils literal notranslate"><span class="pre">string</span></code> - <code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">StringLexerRule</span></code><a class="headerlink" href="#module-string-class-stringlexerrule" title="Link to this heading">¶</a></h3>
+<p>This rule describes the usual string lexing rule, where the starting and ending sequence is the first argument of the constructor,
+and where the second argument is the token type of resulting tokens. The lexing happens in the following way :</p>
+<ol class="arabic simple">
+<li><p>If the first characters represent the starting sequence, it will continue lexing.</p></li>
+<li><p>When reaching a <code class="docutils literal notranslate"><span class="pre">\</span></code> character, it skips the next character to create an escape sequence.</p></li>
+<li><p>When it reaches the ending sequence, it stops lexing.</p></li>
+</ol>
+</section>
+<section id="module-keyword-class-keywordlexerrule">
+<h3>Module <code class="docutils literal notranslate"><span class="pre">keyword</span></code> - <code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">KeywordLexerRule</span></code><a class="headerlink" href="#module-keyword-class-keywordlexerrule" title="Link to this heading">¶</a></h3>
+<p>This rule describes a set of keywords and operands, each having its own associated token type.
+One can give a dictionnary to the constructor, where the key is the keyword or operand and the value
+is the token type. They are represented as a <a class="reference external" href="https://en.wikipedia.org/wiki/Trie">trie</a> behind the hood.
+When lexing, the lexer tries to find the longest prefix representing a keyword inside the trie.
+If the token type of a keyword is None, then the rule will still poll the characters and return an <code class="docutils literal notranslate"><span class="pre">Optional()</span></code>
+object to tell the lexer to ignore the characters of the keyword.</p>
+</section>
+<section id="module-ignore-class-ignorelexerrule">
+<h3>Module <code class="docutils literal notranslate"><span class="pre">ignore</span></code> - <code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">IgnoreLexerRule</span></code><a class="headerlink" href="#module-ignore-class-ignorelexerrule" title="Link to this heading">¶</a></h3>
+<p>This rule describes a set of keywords and operands to ignore, it extends the <code class="docutils literal notranslate"><span class="pre">KeywordLexerRule</span></code> rule and expects
+a string or a list of strings as its parameter in the constructor. Both are interpreted as a list of string (a string
+being a list of characters which are strings of size 1). It gives the keyword rule a dictionnary associating every element
+of the list with <code class="docutils literal notranslate"><span class="pre">None</span></code>, ignoring all characters. For example, it can be used to ignore all white spaces
+by giving <code class="docutils literal notranslate"><span class="pre">string.whitespace</span></code> as its input, telling the rule that every whitespace character should be viewed
+as an ignored operand.</p>
+</section>
+</section>
+<section id="module-polyparser-lexer">
+<span id="polyparser-lexer-init"></span><h2>Module <code class="docutils literal notranslate"><span class="pre">polyparser.lexer</span></code><a class="headerlink" href="#module-polyparser-lexer" title="Link to this heading">¶</a></h2>
+<p>This module contains the class <code class="docutils literal notranslate"><span class="pre">Lexer</span></code>, that allows us to lex the entire content of a reader using a list of rules.
+The constructor of the class expects a list of rules, and one can then use it to try and lex the entire reader, leading to an exception in case of an error.
+One can use it in the following way using for example a json lexer (without numbers included in the lexer) :</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="n">reader</span> <span class="o">=</span> <span class="n">FileReader</span><span class="p">(</span><span class="s2">&quot;file.json&quot;</span><span class="p">)</span>
+
+<span class="hll"> <span class="n">lexer</span> <span class="o">=</span> <span class="n">Lexer</span><span class="p">(</span> <span class="p">[</span>
+</span><span class="hll">     <span class="c1"># Add the operands of the JSON format</span>
+</span>     <span class="n">KeywordLexerRule</span><span class="p">(</span>
+         <span class="p">{</span>
+             <span class="s2">&quot;{&quot;</span><span class="p">:</span> <span class="s2">&quot;LCB&quot;</span><span class="p">,</span> <span class="s2">&quot;}&quot;</span><span class="p">:</span> <span class="s2">&quot;RCB&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;[&quot;</span><span class="p">:</span> <span class="s2">&quot;LSB&quot;</span><span class="p">,</span> <span class="s2">&quot;]&quot;</span><span class="p">:</span> <span class="s2">&quot;RSB&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;:&quot;</span><span class="p">:</span> <span class="s2">&quot;BIND&quot;</span><span class="p">,</span> <span class="s2">&quot;,&quot;</span><span class="p">:</span> <span class="s2">&quot;COMMA&quot;</span>
+         <span class="p">}</span>
+     <span class="p">),</span>
+<span class="hll">     <span class="c1"># Add a string parser</span>
+</span>     <span class="n">StringLexerRule</span><span class="p">(</span> <span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;STRING&quot;</span> <span class="p">),</span>
+<span class="hll">     <span class="c1"># Ignore white spaces</span>
+</span>     <span class="n">IgnoreLexerRule</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">whitespace</span><span class="p">)</span>
+ <span class="p">]</span> <span class="p">)</span>
+
+<span class="hll"> <span class="c1"># Lex the reader values</span>
+</span><span class="hll"> <span class="n">tokens</span> <span class="o">=</span> <span class="n">lexer</span><span class="o">.</span><span class="n">try_lexing</span><span class="p">(</span><span class="n">reader</span><span class="p">)</span>
+</span></pre></div>
+</div>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">polyparser</a></h1>
+
+
+
+
+
+
+
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Reference guides</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">API Reference</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="io.html">Input / Output</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Lexer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils.html">Utils</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<h3>Versions</h3>
+<ul>
+    
+    <li><p style="margin: 0;"><a href="https://polympiads.github.io/polyparser/add-documentation">add-documentation</a> </p></li>
+    <li><p style="margin: 0;"><a href="https://polympiads.github.io/polyparser/add-io-utils">add-io-utils</a> </p></li>
+    <li><p style="margin: 0;"><a href="https://polympiads.github.io/polyparser/add-lexer">add-lexer</a> (Current)</p></li>
+    <li><p style="margin: 0;"><a href="https://polympiads.github.io/polyparser/add-parser">add-parser</a> </p></li>
+    <li><p style="margin: 0;"><a href="https://polympiads.github.io/polyparser/">release</a> </p></li>
+</ul>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2024, polympiads.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/reference/api/lexer.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Input / Output &#8212; polyparser 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=cb25574f" />
+    <script src="../../_static/documentation_options.js?v=f2a433a1"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Lexer" href="lexer.html" />
+    <link rel="prev" title="API Reference" href="index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="input-output">
+<span id="io"></span><h1>Input / Output<a class="headerlink" href="#input-output" title="Link to this heading">¶</a></h1>
+<p>This page documents the inner API of the <code class="docutils literal notranslate"><span class="pre">polyparser.io</span></code> package. It possesses the following interesting modules</p>
+<ol class="arabic simple">
+<li><p><a class="reference internal" href="#polyparser-io-savestream"><span class="std std-ref">polyparser.io.savestream</span></a> - Module responsible for saveable streams</p></li>
+<li><p><a class="reference internal" href="#polyparser-io-reader"><span class="std std-ref">polyparser.io.reader</span></a> - Module containing readers</p></li>
+<li><p><a class="reference internal" href="#polyparser-io-position"><span class="std std-ref">polyparser.io.position</span></a> - Module containing position utilities</p></li>
+</ol>
+<section id="module-polyparser-io-savestream">
+<span id="polyparser-io-savestream"></span><h2>Module <code class="docutils literal notranslate"><span class="pre">polyparser.io.savestream</span></code><a class="headerlink" href="#module-polyparser-io-savestream" title="Link to this heading">¶</a></h2>
+<p>This module gives the guideline for a saveable stream.
+The main idea behind this stream is to create an object,
+containing a state on which we can read in an atomic way, rolling back in case of an error.</p>
+<section id="class-savestreamerror">
+<h3><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">SaveStreamError</span></code><a class="headerlink" href="#class-savestreamerror" title="Link to this heading">¶</a></h3>
+<p>This class is used to raise an exception in case something goes wrong inside of the stream.</p>
+</section>
+<section id="class-savedstate">
+<h3><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">SavedState</span></code><a class="headerlink" href="#class-savedstate" title="Link to this heading">¶</a></h3>
+<p>This class should be extended and will represent the current state of a stream when it is entered.</p>
+<section id="static-method-empty-empty-args">
+<h4>static method <code class="docutils literal notranslate"><span class="pre">empty(*empty_args)</span></code><a class="headerlink" href="#static-method-empty-empty-args" title="Link to this heading">¶</a></h4>
+<p>This static method should generate an instance of the type extending <code class="docutils literal notranslate"><span class="pre">SavedState</span></code> representing an empty, or default state. If it isn’t overwritten, it generates an <code class="docutils literal notranslate"><span class="pre">AssertionError</span></code>.</p>
+</section>
+<section id="method-copy-into-self-other">
+<h4>method <code class="docutils literal notranslate"><span class="pre">copy_into(self,</span> <span class="pre">other)</span></code><a class="headerlink" href="#method-copy-into-self-other" title="Link to this heading">¶</a></h4>
+<p>This method should copy the data from the current instance into the other instance of the type. If it isn’t overwritten, it generates an <code class="docutils literal notranslate"><span class="pre">AssertionError</span></code>.</p>
+</section>
+<section id="method-copy-self-empty-args">
+<h4>method <code class="docutils literal notranslate"><span class="pre">copy(self,</span> <span class="pre">*empty_args)</span></code><a class="headerlink" href="#method-copy-self-empty-args" title="Link to this heading">¶</a></h4>
+<p>This method creates a copy of the current object. If the object was locked, the new one shouldn’t be locked. It relies both on <code class="docutils literal notranslate"><span class="pre">empty</span></code> and <code class="docutils literal notranslate"><span class="pre">copy_into</span></code>, and it passes the arguments to <code class="docutils literal notranslate"><span class="pre">empty</span></code>.</p>
+</section>
+<section id="is-locked">
+<h4><code class="docutils literal notranslate"><span class="pre">is_locked</span></code><a class="headerlink" href="#is-locked" title="Link to this heading">¶</a></h4>
+<p>Immutable property represented by a boolean telling whether the object is currently locked. A locked object can’t ever be modified again. This happens when the <code class="docutils literal notranslate"><span class="pre">_lock</span></code> method is called by another part of the program. This method should never be called outside of the <code class="docutils literal notranslate"><span class="pre">savestream</span></code> module as it can lead to damage to the associated atomic modification and to the associated stream.</p>
+</section>
+</section>
+<section id="class-savestreamatomic-t-extends-savedstate">
+<h3><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">SaveStreamAtomic[T</span> <span class="pre">extends</span> <span class="pre">SavedState]</span></code><a class="headerlink" href="#class-savestreamatomic-t-extends-savedstate" title="Link to this heading">¶</a></h3>
+<p>This class contains the necessary data for an atomic modification. It is generated by the <code class="docutils literal notranslate"><span class="pre">SaveStream</span></code> when starting a modification.</p>
+<section id="method-rollback">
+<h4>method <code class="docutils literal notranslate"><span class="pre">rollback()</span></code><a class="headerlink" href="#method-rollback" title="Link to this heading">¶</a></h4>
+<p>Cancels the atomic modification and locks the associated data. The program should exit from the modification mode right after rolling back.</p>
+</section>
+<section id="has-done-rollback">
+<h4><code class="docutils literal notranslate"><span class="pre">has_done_rollback</span></code><a class="headerlink" href="#has-done-rollback" title="Link to this heading">¶</a></h4>
+<p>This immutable property allows you to know if the modification has been cancelled.</p>
+</section>
+<section id="bound-and-old">
+<h4><code class="docutils literal notranslate"><span class="pre">bound</span></code> and <code class="docutils literal notranslate"><span class="pre">old</span></code><a class="headerlink" href="#bound-and-old" title="Link to this heading">¶</a></h4>
+<p>These two immutable properties allow you to get respectively the current state of the stream and the one before the start of the modification.</p>
+</section>
+</section>
+<section id="class-savestream-t-extends-savedstate">
+<h3><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">SaveStream[T</span> <span class="pre">extends</span> <span class="pre">SavedState]</span></code><a class="headerlink" href="#class-savestream-t-extends-savedstate" title="Link to this heading">¶</a></h3>
+<p>A <code class="docutils literal notranslate"><span class="pre">SaveStream</span></code> should be used with the appropriate <code class="docutils literal notranslate"><span class="pre">SavedState</span></code> type. One can create such a stream in the following ways :</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="c1"># Here, T is the type of your state, and should extend SavedState</span>
+ <span class="c1"># A simple way to create the stream</span>
+<span class="hll"> <span class="n">stream</span> <span class="o">=</span> <span class="n">SaveStream</span><span class="p">[</span><span class="n">T</span><span class="p">](</span><span class="n">T</span><span class="p">)</span>
+</span>
+ <span class="c1"># Using a custom class</span>
+<span class="hll"> <span class="k">class</span> <span class="nc">CustomStream</span><span class="p">(</span><span class="n">SaveStream</span><span class="p">[</span><span class="n">T</span><span class="p">]):</span>
+</span><span class="hll">     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span class="hll">         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+</span>
+<span class="hll"> <span class="n">stream</span> <span class="o">=</span> <span class="n">CustomStream</span><span class="p">()</span>
+</span></pre></div>
+</div>
+<p>Then one can start doing atomic reading on it in the following way :</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="c1"># Enter into the stream</span>
+ <span class="c1"># Returns a tuple containing the atomic modification and the state</span>
+<span class="hll"> <span class="k">with</span> <span class="n">stream</span> <span class="k">as</span> <span class="p">(</span><span class="n">atomic</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+</span>     <span class="c1"># You can now read something from the state</span>
+     <span class="c1"># This is where your custom implementation of SavedState takes place</span>
+<span class="hll">     <span class="n">something</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+</span></pre></div>
+</div>
+<p>If you want to cancel any modifications that your state has done to your stream, you can do the following</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="c1"># Enter into the stream</span>
+ <span class="c1"># Returns a tuple containing the atomic modification and the state</span>
+ <span class="k">with</span> <span class="n">stream</span> <span class="k">as</span> <span class="p">(</span><span class="n">atomic</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+     <span class="c1"># Here you read and modify the state ...</span>
+     <span class="c1"># Something goes wrong and you want to rollback</span>
+     <span class="c1"># You can then do the following</span>
+<span class="hll">     <span class="n">atomic</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+</span>
+     <span class="c1"># From this point on, state is locked and can&#39;t be used</span>
+     <span class="c1"># You should leave as soon as possible the with statement</span>
+     <span class="c1"># As the modification is over.</span>
+</pre></div>
+</div>
+</section>
+<section id="understanding-what-happens-behind-the-scenes">
+<h3>Understanding what happens behind the scenes<a class="headerlink" href="#understanding-what-happens-behind-the-scenes" title="Link to this heading">¶</a></h3>
+<p>The idea is that when you enter in modification mode using the <code class="docutils literal notranslate"><span class="pre">with</span></code> keyword,
+the stream generates an atomic modification and creates a copy of the current state.
+It then outputs both the atomic modification object and the copy. Then you can do some
+modifications on the state and leave the modification mode by going out of the statement.</p>
+<p>After that, the stream will do the following :</p>
+<ol class="arabic simple">
+<li><p>If the modification was rollbacked, destroy the current state and replace it by the old one stored in the atomic modification.</p></li>
+<li><p>Otherwise, copy the data of the current state into the old one and put back the old one.</p></li>
+</ol>
+<p>This first idea is somewhat logical as you just destroy all of the old data, but the second can seem strange, but is quite logical if you think of nested modifications.
+Once you have finished either modifying or rolling back, the state goes back to the old object so that it is still pointing to the right state, but if there were valid modifications,
+then we copy the data into the old state. One can view all the implications in the following code :</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># We will assume that the state contains an index that starts at 0</span>
+<span class="k">with</span> <span class="n">stream</span> <span class="k">as</span> <span class="p">(</span><span class="n">a1</span><span class="p">,</span> <span class="n">s1</span><span class="p">):</span>
+    <span class="c1"># Here, s1.index = 0, and one can modify it</span>
+    <span class="n">s1</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">with</span> <span class="n">stream</span> <span class="k">as</span> <span class="p">(</span><span class="n">a2</span><span class="p">,</span> <span class="n">s2</span><span class="p">):</span>
+        <span class="c1"># Here, s1.index = s2.index = 1, but s2 is not s1</span>
+        <span class="n">s2</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="c1"># Now, the values are different and s2.index = 2, s1.index = 1</span>
+    <span class="c1"># When leaving the with statements, modifications on s2</span>
+    <span class="c1"># Are propagated to s1 and s1.index = 2</span>
+<span class="c1"># Now the modifications on s1 are propagated to the default state</span>
+<span class="c1"># And until further modification, any new with statement will start</span>
+<span class="c1"># with a state with index 2.</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="module-polyparser-io-reader">
+<span id="polyparser-io-reader"></span><h2>Module <code class="docutils literal notranslate"><span class="pre">polyparser.io.reader</span></code><a class="headerlink" href="#module-polyparser-io-reader" title="Link to this heading">¶</a></h2>
+<p>This module contains most notably the <code class="docutils literal notranslate"><span class="pre">FileReader</span></code> class, responsible for handling any file reading related computation.
+It is an implementation of a SaveStream in the case of characters, where the <code class="docutils literal notranslate"><span class="pre">SavedState</span></code> represents a cursor on the list of characters of the file.</p>
+<section id="class-filereaderstate-savedstate">
+<h3><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">FileReaderState(SavedState)</span></code><a class="headerlink" href="#class-filereaderstate-savedstate" title="Link to this heading">¶</a></h3>
+<p>This class implements a saved state referencing a file reader.
+It works as a queue-like object for the reader, that can be rolled back.
+All operations are in <code class="docutils literal notranslate"><span class="pre">O(1)</span></code> as it uses always the same string buffer, that is never copied nor
+deleted. Only a cursor is used to maintain the start of the buffer of this state.
+It inherits all the methods from SavedState, but it also implements the following methods :</p>
+<section id="method-peek-self">
+<h4>method <code class="docutils literal notranslate"><span class="pre">peek(self)</span></code><a class="headerlink" href="#method-peek-self" title="Link to this heading">¶</a></h4>
+<p>Returns the next character in the buffer</p>
+</section>
+<section id="method-poll-self">
+<h4>method <code class="docutils literal notranslate"><span class="pre">poll(self)</span></code><a class="headerlink" href="#method-poll-self" title="Link to this heading">¶</a></h4>
+<p>Removes and returns the next character in the buffer</p>
+</section>
+<section id="property-size-and-len-state-state-len-self">
+<h4>property <code class="docutils literal notranslate"><span class="pre">size</span></code> and <code class="docutils literal notranslate"><span class="pre">len(state)</span> <span class="pre">=</span> <span class="pre">state.__len__(self)</span></code><a class="headerlink" href="#property-size-and-len-state-state-len-self" title="Link to this heading">¶</a></h4>
+<p>It implements both an immutable <code class="docutils literal notranslate"><span class="pre">size</span></code> property and the <code class="docutils literal notranslate"><span class="pre">__len__</span></code> method so you can use the <code class="docutils literal notranslate"><span class="pre">len</span></code> function on it,
+that both contain the size of the remaining buffer.</p>
+</section>
+</section>
+<section id="class-filereader-savestream-filereaderstate">
+<h3><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">FileReader(SaveStream[FileReaderState])</span></code><a class="headerlink" href="#class-filereader-savestream-filereaderstate" title="Link to this heading">¶</a></h3>
+<p>This class contains the implementation of a file reader.
+It must be instantiated with the path of the file, and you can then access
+both the path and content in the immutable properties with the same name.</p>
+<p>You can then use it as a <code class="docutils literal notranslate"><span class="pre">SaveStream</span></code> where the state is a <code class="docutils literal notranslate"><span class="pre">FileReaderState</span></code>. For example, if you want to check that the 26 first characters are those of the alphabet, you could do :</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="n">reader</span> <span class="o">=</span> <span class="n">FileReader</span><span class="p">(</span><span class="s2">&quot;...&quot;</span><span class="p">)</span>
+
+ <span class="c1"># Start modification mode</span>
+ <span class="k">with</span> <span class="n">reader</span> <span class="k">as</span> <span class="p">(</span><span class="n">atomic</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+     <span class="n">is_valid</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="hll">     <span class="c1"># Poll all the characters and verify them</span>
+</span>     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">26</span><span class="p">):</span>
+         <span class="k">if</span> <span class="n">state</span><span class="o">.</span><span class="n">poll</span><span class="p">()</span> <span class="o">!=</span> <span class="nb">chr</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;a&#39;</span><span class="p">)):</span>
+             <span class="n">is_valid</span> <span class="o">=</span> <span class="kc">False</span>
+             <span class="k">break</span>
+     <span class="k">if</span> <span class="ow">not</span> <span class="n">is_valid</span><span class="p">:</span> <span class="c1"># if it is invalid, roll back</span>
+         <span class="n">atomic</span><span class="o">.</span><span class="n">rollback</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="module-polyparser-io-position">
+<span id="polyparser-io-position"></span><h2>Module <code class="docutils literal notranslate"><span class="pre">polyparser.io.position</span></code><a class="headerlink" href="#module-polyparser-io-position" title="Link to this heading">¶</a></h2>
+<section id="class-positionrange">
+<h3><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">PositionRange</span></code><a class="headerlink" href="#class-positionrange" title="Link to this heading">¶</a></h3>
+<p>This class represents a position range in a file, associated with the reader.</p>
+<p>It is represented as a starting line and starting column in the immutable properties <code class="docutils literal notranslate"><span class="pre">line</span></code> and <code class="docutils literal notranslate"><span class="pre">column</span></code>.
+It also contains the height and the ending column in the immutable properties <code class="docutils literal notranslate"><span class="pre">height</span></code> and <code class="docutils literal notranslate"><span class="pre">last_column</span></code>.</p>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">polyparser</a></h1>
+
+
+
+
+
+
+
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Reference guides</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">API Reference</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Input / Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lexer.html">Lexer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils.html">Utils</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<h3>Versions</h3>
+<ul>
+    
+    <li><p style="margin: 0;"><a href="https://polympiads.github.io/polyparser/add-documentation">add-documentation</a> </p></li>
+    <li><p style="margin: 0;"><a href="https://polympiads.github.io/polyparser/add-io-utils">add-io-utils</a> </p></li>
+    <li><p style="margin: 0;"><a href="https://polympiads.github.io/polyparser/add-lexer">add-lexer</a> </p></li>
+    <li><p style="margin: 0;"><a href="https://polympiads.github.io/polyparser/add-parser">add-parser</a> </p></li>
+    <li><p style="margin: 0;"><a href="https://polympiads.github.io/polyparser/">release</a> (Current)</p></li>
+</ul>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2024, polympiads.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/reference/api/io.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
