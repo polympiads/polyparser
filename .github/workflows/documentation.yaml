@@ -18,7 +18,7 @@ jobs:
       - uses: actions/setup-python@v5
       - name: Install dependencies
         run: |
-          pip install sphinx
+          sudo apt-get install python3-sphinx
       - name: Sphinx build
         run: |
           branches=`git branch -r | cut -c 3- | sed 's/origin\///g'`
