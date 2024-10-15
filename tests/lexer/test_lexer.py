@@ -11,9 +11,17 @@ from polyparser.lexer.rules.string import StringLexerRule
 
 
 def test_lexer_eq_neq_set ():
-    lexer = Lexer( [ KeywordLexerRule({ "==": "EQ", "=": "SET", "!=": "NEQ" }) ] )
+    class F:
+        def __init__(self, value: str):
+            self.value = value
+        def __eq__(self, value: object) -> bool:
+            return value == self.value
+        @property
+        def name (self):
+            return self.value
+    lexer = Lexer( [ KeywordLexerRule({ "==": F("EQ"), "=": F("SET"), "!=": F("NEQ") }) ] )
 
-    reader = FileReader( "tests/lexer/rules/file_tests/eq-neq-set.txt" )
+    reader = FileReader.open( "tests/lexer/rules/file_tests/eq-neq-set.txt" )
 
     tokens = lexer.try_lexing( reader )
 
@@ -27,28 +35,48 @@ def test_lexer_eq_neq_set ():
          and eq1.position.line == 1 \
          and eq1.position.column == 1 \
          and eq1.position.last_column == 3 \
-         and eq1.position.height == 1
+         and eq1.position.height == 1 \
+         and eq1.position.offset == 0 \
+         and eq1.position.size == 2 \
+         and eq1.position.value == "==" \
+         and eq1.value == "==" \
+         and eq1.name == "EQ"
     eq2 = tokens[1]
     assert   eq2.token_type == "SET" \
          and eq2.position.line == 1 \
          and eq2.position.column == 3 \
          and eq2.position.last_column == 4 \
-         and eq2.position.height == 1
+         and eq2.position.height == 1 \
+         and eq2.position.offset == 2 \
+         and eq2.position.size == 1 \
+         and eq2.position.value == "=" \
+         and eq2.value == "=" \
+         and eq2.name == "SET"
     eq3 = tokens[2]
     assert   eq3.token_type == "NEQ" \
          and eq3.position.line == 1 \
          and eq3.position.column == 4 \
          and eq3.position.last_column == 6 \
-         and eq3.position.height == 1
+         and eq3.position.height == 1 \
+         and eq3.position.offset == 3 \
+         and eq3.position.size == 2 \
+         and eq3.position.value == "!=" \
+         and eq3.value == "!=" \
+         and eq3.name == "NEQ"
     eq4 = tokens[3]
     assert   eq4.token_type == "SET" \
          and eq4.position.line == 1 \
          and eq4.position.column == 6 \
          and eq4.position.last_column == 7 \
-         and eq4.position.height == 1
+         and eq4.position.height == 1\
+         and eq4.position.offset == 5 \
+         and eq4.position.size == 1 \
+         and eq4.position.value == "=" \
+         and eq4.value == "=" \
+         and eq4.name == "SET"
 
 def test_lexer_fail ():
-    reader = FileReader( "tests/lexer/rules/file_tests/simple-name.txt" )
+    reader = FileReader.open( "tests/lexer/rules/file_tests/simple-name.txt" )
     
     lexer = Lexer( [ NameLexerRule("NAME"), IgnoreLexerRule(string.whitespace + ".,;") ] )
 
@@ -56,7 +84,7 @@ def test_lexer_fail ():
         tokens = lexer.try_lexing(reader)
 
 def test_json_lexer ():
-    reader = FileReader( "tests/lexer/rules/file_tests/json-file-test.json" )
+    reader = FileReader.open( "tests/lexer/rules/file_tests/json-file-test.json" )
     lexer  = Lexer( [
         KeywordLexerRule(
             {

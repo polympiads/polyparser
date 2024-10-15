@@ -6,7 +6,7 @@ from polyparser.lexer.rules.keyword import KeywordLexerRule
 def test_empty_rulebook ():
     rule = KeywordLexerRule({  })
 
-    reader = FileReader( "tests/lexer/rules/file_tests/eq-neq-set.txt" )
+    reader = FileReader.open( "tests/lexer/rules/file_tests/eq-neq-set.txt" )
 
     assert rule.try_lexing( reader ) is None
 
@@ -14,7 +14,7 @@ def test_empty_rulebook ():
 def test_simple_equals_rulebook ():
     rule = KeywordLexerRule({ "==": "EQ", "=": "SET", "!=": "NEQ" })
 
-    reader = FileReader( "tests/lexer/rules/file_tests/eq-neq-set.txt" )
+    reader = FileReader.open( "tests/lexer/rules/file_tests/eq-neq-set.txt" )
     eq1 = rule.try_lexing(reader)
     assert eq1.exists \
          and eq1.value.token_type == "EQ" \

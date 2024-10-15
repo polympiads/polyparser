@@ -14,7 +14,7 @@ def test_strings ():
         "\"abc\\nhi\""
     ]
 
-    reader = FileReader( "tests/lexer/rules/file_tests/strings.txt" )
+    reader = FileReader.open( "tests/lexer/rules/file_tests/strings.txt" )
 
     lexer = Lexer( [
         StringLexerRule( "\"", "STRING" ),
@@ -33,7 +33,7 @@ def test_strings ():
         assert word.position.line == index
         index += 1
 def test_non_finished_string ():
-    reader = FileReader( "tests/lexer/rules/file_tests/strings-false.txt" )
+    reader = FileReader.open( "tests/lexer/rules/file_tests/strings-false.txt" )
 
     lexer = Lexer( [
         StringLexerRule( "\"\"\"", "STRING" ),

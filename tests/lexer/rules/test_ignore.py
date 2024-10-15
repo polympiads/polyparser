@@ -6,7 +6,7 @@ from polyparser.lexer.rules.name import NameLexerRule
 import string
 
 def test_ignore_rule ():
-    reader = FileReader( "tests/lexer/rules/file_tests/simple-name-working.txt" )
+    reader = FileReader.open( "tests/lexer/rules/file_tests/simple-name-working.txt" )
     
     lexer = Lexer( [ NameLexerRule("NAME"), IgnoreLexerRule(string.whitespace + ".,;") ] )
     tokens = lexer.try_lexing(reader)
