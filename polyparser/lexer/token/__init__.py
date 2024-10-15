@@ -25,3 +25,10 @@ class Token:
                 raise AttributeError("A token is immutable once created")
         
         super().__setattr__(name, value)
+
+    @property
+    def name (self):
+        return self.token_type.name
+    @property
+    def value (self):
+        return self.position.value
