@@ -1,5 +1,5 @@
 
-from typing import List
+from typing import Any, List
 from polyparser.parser.context import ParserContext
 from polyparser.parser.node import ParserNode
 from polyparser.parser.result import ParsingResult
@@ -13,6 +13,10 @@ class OrPrimitive (ParserNode):
         super().__init__()
 
         self.__primitives = list(primitives)
+    def call(self, stream: ParserStream, context: ParserContext, arguments: List[Any]):
+        if len(arguments) == 0:
+            return self.evaluate(stream, context)
+        raise NotImplementedError( "An or primitive cannot be called" )
     def evaluate(self, stream: ParserStream, context: ParserContext) -> ParsingResult:
         with stream as (atomic, state):
             had_one_ignored = False

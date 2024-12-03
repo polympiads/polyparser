@@ -1,7 +1,8 @@
 
+from typing import Any, List, Tuple
 from polyparser.lexer.token import Token
 from polyparser.parser.context import ParserContext
-from polyparser.parser.node import ParserNode
+from polyparser.parser.node import ParserNode, ParserNodeType
 from polyparser.parser.result import ParsingResult
 from polyparser.parser.stream import ParserStream
 
@@ -22,6 +23,10 @@ class TokenPrimitive(ParserNode):
         return token.name == self.__name \
           and (self.__expects is None \
             or self.__expects == token.value)
+    def call(self, stream: ParserStream, context: ParserContext, arguments: List[Any]):
+        if len(arguments) == 0:
+            return self.evaluate(stream, context)
+        raise NotImplementedError( "A token primitive cannot be called" )
     def evaluate(self, stream: ParserStream, context: ParserContext) -> ParsingResult:
         with stream as (atomic, state):
             if state.size == 0: return ParsingResult.FAILED

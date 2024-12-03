@@ -1,4 +1,5 @@
 
+import pytest
 from polyparser.parser.context import ParserContext
 from polyparser.parser.primitives.branch import OrPrimitive
 from polyparser.parser.primitives.list import ListPrimitive
@@ -33,6 +34,9 @@ def test_trivial_or ():
                 assert state.size == 1
                 assert result == ParsingResult.FAILED
                 assert len(stored) == 0
+        with pytest.raises(NotImplementedError, match="An or primitive cannot be called"):
+            with stream as (atomic, state):
+                primitive.call(stream, context, [ "some args" ])
     
     parse ("true", True)
     parse ("false", True)

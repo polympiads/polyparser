@@ -1,6 +1,6 @@
 
 import enum
-from typing import Any
+from typing import Any, List
 from polyparser.parser.context import ParserContext
 from polyparser.parser.node import ParserNode
 from polyparser.parser.result import ParsingResult
@@ -18,6 +18,12 @@ class AugmentedPrimitive (ParserNode):
         self.__augment       = augment
         self.__prim_type     = prim_type
     
+    def call(self, stream: ParserStream, context: ParserContext, arguments: List[Any]):
+        if len(arguments) == 0:
+            return self.evaluate(stream, context)
+        if self.__augment != AugmentedType.NONE or self.__prim_type is not None:
+            raise NotImplementedError( "A non empty augmented primitive cannot be called" )
+        return self.__sub_primitive.call( stream, context, arguments )
     def evaluate(self, stream: ParserStream, context: ParserContext) -> ParsingResult:
         min_amount = 0
         if (self.__augment.value & 1) == 0:

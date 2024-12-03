@@ -43,6 +43,17 @@ def test_primitive ():
 
             check_eq(arr)
             if rollback: atomic.rollback()
+        with stream as (atomic, state):
+            assert prim.call(stream, context, []) == result
+
+            check_eq(arr)
+            if rollback: atomic.rollback()
+        with stream as (atomic, state):
+            try:
+                assert prim.call(stream, context, [ None ]) == result
+            except NotImplementedError as error:
+                assert error.args[0] == "A token primitive cannot be called"
+            if rollback: atomic.rollback()
     def advance ():
         with stream as (atomic, state):
             state.poll()
@@ -64,4 +75,3 @@ def test_primitive ():
     evaluate( primitive3, ParsingResult.SUCCESS, [] )
     evaluate( primitive4, ParsingResult.SUCCESS, [ T[2] ] )
     advance()
-

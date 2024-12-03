@@ -1,4 +1,5 @@
 
+import pytest
 from polyparser.parser.context import ParserContext
 from polyparser.parser.node import ParserNode
 from polyparser.parser.primitives.augmented import AugmentedPrimitive, AugmentedType
@@ -30,6 +31,9 @@ def test_simple_none ():
 
             check_eq(arr)
             if rollback: atomic.rollback()
+        with pytest.raises(NotImplementedError, match="A token primitive cannot be called"):
+            with stream as (atomic, state):
+                prim.call(stream, context, [ "some args" ])
     def advance ():
         with stream as (atomic, state):
             state.poll()
@@ -75,6 +79,9 @@ def test_simple_optional ():
 
             check_eq(arr)
             if rollback: atomic.rollback()
+        with pytest.raises(NotImplementedError, match="A non empty augmented primitive cannot be called"):
+            with stream as (atomic, state):
+                prim.call(stream, context, [ "some args" ])
     def advance ():
         with stream as (atomic, state):
             state.poll()
@@ -213,6 +220,9 @@ def test_prim_type_none ():
 
             check_eq([tuple(arr)] if result == ParsingResult.SUCCESS else [])
             if rollback: atomic.rollback()
+        with pytest.raises(NotImplementedError, match="A non empty augmented primitive cannot be called"):
+            with stream as (atomic, state):
+                prim.call(stream, context, [ "some args" ])
     def advance ():
         with stream as (atomic, state):
             state.poll()

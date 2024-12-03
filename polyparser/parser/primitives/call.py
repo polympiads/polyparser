@@ -1,11 +1,10 @@
 
-from typing import List
+from typing import Any, List
 from polyparser.parser.context import ParserContext
-from polyparser.parser.node import ParserNode
+from polyparser.parser.node import BoundNode, ParserNode, ParserNodeType
 from polyparser.parser.primitives.list import ListPrimitive
 from polyparser.parser.result import ParsingResult
 from polyparser.parser.stream import ParserStream
-
 
 class CallPrimitive(ParserNode):
     __name: str
@@ -16,10 +15,13 @@ class CallPrimitive(ParserNode):
 
         self.__args = list(arguments)
 
-    def evaluate(self, stream: ParserStream, context: ParserContext) -> ParsingResult:
+    def call(self, stream: ParserStream, context: ParserContext, arguments: List[Any]):
         target, exists = context.get_element(self.__name)
-
+        
         if exists and isinstance(target, ParserNode):
-            # TODO instantiate with self context
-            return target.evaluate(stream, context)
+            new_args = list(map(lambda arg : BoundNode( arg, context ), self.__args))
+            print(new_args, arguments)
+            return target.call(stream, context, new_args + arguments)
         return ParsingResult.FAILED
+    def evaluate(self, stream: ParserStream, context: ParserContext) -> ParsingResult:
+        return self.call( stream, context, [] )
