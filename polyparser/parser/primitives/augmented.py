@@ -48,7 +48,7 @@ class AugmentedPrimitive (ParserNode):
                         try:
                             substate.store( self.__prim_type(*args) )
                         except Exception as exception:
-                            print(exception)
+                            print("Exception in augmented primitive", exception)
                             subatomic.rollback()
                             last_res = ParsingResult.FAILED
                             break

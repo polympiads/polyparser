@@ -20,7 +20,7 @@ class CallPrimitive(ParserNode):
         
         if exists and isinstance(target, ParserNode):
             new_args = list(map(lambda arg : BoundNode( arg, context ), self.__args))
-            print(new_args, arguments)
+
             return target.call(stream, context, new_args + arguments)
         return ParsingResult.FAILED
     def evaluate(self, stream: ParserStream, context: ParserContext) -> ParsingResult:

@@ -8,16 +8,19 @@ from polyparser.parser.stream import ParserStream
 
 class Parser:
     __context: ParserContext
+    __main : str
 
-    def __init__(self) -> None:
+    def __init__(self, main: str = "main") -> None:
         self.__context = self.get_context()
+
+        self.__main = main
 
     def get_context (self) -> ParserContext:
         raise NotImplementedError()
     def try_parsing (self, tokens: List[Token]):
         stream = ParserStream( tokens )
 
-        primitive = CallPrimitive( "main" )
+        primitive = CallPrimitive( self.__main )
         context   = ParserContext( self.__context )
 
         with stream as (atomic, state):
@@ -28,9 +31,9 @@ class Parser:
 
 class FixedContextParser(Parser):
     __context: ParserContext
-    def __init__(self, context: ParserContext) -> None:
+    def __init__(self, context: ParserContext, *args, **kwargs) -> None:
         self.__context = context
 
-        super().__init__()
+        super().__init__(*args, **kwargs)
     def get_context(self) -> ParserContext:
         return self.__context

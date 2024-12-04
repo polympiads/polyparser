@@ -36,7 +36,10 @@ class Lexer:
                     assert False
                 
                 if next_token.exists:
-                    array.append( next_token.value )
+                    if isinstance(next_token.value, list):
+                        array.extend( next_token.value )
+                    else:
+                        array.append( next_token.value )
             
             return array
 
