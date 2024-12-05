@@ -6,9 +6,10 @@ API Reference
 
 This page documents the inner API of the ``polyparser`` project. The project is separated into the following modules 
 
-#. :ref:`Input / Output <io>` - ```polyparser.io`` : responsible for file handling and generic stream objects.`
-#. :ref:`Lexer <lexer>` - ```polyparser.lexer`` : handles tokenization of files.`
-#. :ref:`Utils <utils>` - ```polyparser.utils`` : contains tools that can be used in multiple other packages.`
+#. :ref:`Input / Output <io>` - ``polyparser.io`` : responsible for file handling and generic stream objects.
+#. :ref:`Lexer <lexer>` - ``polyparser.lexer`` : handles tokenization of files.
+#. :ref:`Utils <utils>` - ``polyparser.utils`` : contains tools that can be used in multiple other packages.
+#. :ref:`Parser <parser>` - ``polyparser.parser`` : contains the generic parsing framework.
 
 We will be using the following guidelines regarding the documentation :
 
