@@ -10,6 +10,7 @@ This page documents the inner API of the ``polyparser`` project. The project is 
 #. :ref:`Lexer <lexer>` - ``polyparser.lexer`` : handles tokenization of files.
 #. :ref:`Utils <utils>` - ``polyparser.utils`` : contains tools that can be used in multiple other packages.
 #. :ref:`Parser <parser>` - ``polyparser.parser`` : contains the generic parsing framework.
+#. :ref:`Language <language>` - ``polyparser.language`` : contains the generic language framework to create custom languages.
 
 We will be using the following guidelines regarding the documentation :
 
@@ -22,3 +23,5 @@ We will be using the following guidelines regarding the documentation :
    io
    lexer
    utils
+   parser
+   language

@@ -39,4 +39,30 @@ html_version_root = "https://polympiads.github.io/polyparser/"
 html_sidebars = {
    '**': ['about.html', 'searchbox.html', 'navigation.html', 'versions.html']
 }
-html_context = module.generate_gitdata(html_version_root)
+#html_context = module.generate_gitdata(html_version_root)
+
+# PolyLanguage
+
+from pygments.lexer import RegexLexer
+from pygments import token
+from sphinx.highlighting import lexers
+
+class PolyLanguageLexer(RegexLexer):
+    name = 'PolyLanguage'
+
+    tokens = {
+        'root': [
+            (r'\.\.\.', token.Keyword),
+            (r': *[a-zA-Z_][a-zA-Z0-9_]*', token.Keyword),
+            (r'(\/(\/)?([a-zA-Z_][a-zA-Z0-9_]*(:"[^"]*")?)\/)|,|=|:|\(|\)', token.Literal),
+            (r'\^ *[a-zA-Z_][a-zA-Z0-9_]*', token.Keyword),
+            (r'def',            token.Keyword),
+            (r'[a-zA-Z_]',       token.Literal),
+            (r'\[|\]',          token.Keyword),
+            (r'\+|\?|\*|\^|\|', token.Keyword),
+            (r'#[^\n]*',        token.Comment),
+            (r'\s',       token.Text)
+        ]
+    }
+
+lexers['polylanguage'] = PolyLanguageLexer(startinline=True)
