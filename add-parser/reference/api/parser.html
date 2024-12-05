@@ -1,0 +1,217 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Parser &#8212; polyparser 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Language Definition" href="language.html" />
+    <link rel="prev" title="Utils" href="utils.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="parser">
+<span id="id1"></span><h1>Parser<a class="headerlink" href="#parser" title="Permalink to this headline">¶</a></h1>
+<p>This page documents the inner API of the <code class="docutils literal notranslate"><span class="pre">polyparser.parser</span></code> package.
+The parser is structured mostly around the following objects :</p>
+<ol class="arabic simple">
+<li><p><a class="reference internal" href="#polyparser-parser-context"><span class="std std-ref">Context</span></a> - Parsing context</p></li>
+<li><p><a class="reference internal" href="#polyparser-parser-cursor"><span class="std std-ref">Cursor / Stream</span></a> - Parser cursor and parser stream</p></li>
+<li><p><a class="reference internal" href="#polyparser-parser-node"><span class="std std-ref">Nodes</span></a> - Parser nodes (rules for parsing)</p></li>
+</ol>
+<section id="module-polyparser-parser-context">
+<span id="polyparser-parser-context"></span><h2>Module <code class="docutils literal notranslate"><span class="pre">polyparser.parser.context</span></code><a class="headerlink" href="#module-polyparser-parser-context" title="Permalink to this headline">¶</a></h2>
+<section id="class-parsercontext">
+<h3><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">ParserContext</span></code><a class="headerlink" href="#class-parsercontext" title="Permalink to this headline">¶</a></h3>
+<p>A parser context contains the current variables,
+it is similar to a classical variable container, which can be
+linked to a parent variable container. It has both <code class="docutils literal notranslate"><span class="pre">get_element</span></code>
+and <code class="docutils literal notranslate"><span class="pre">set_element</span></code> variables to allow for getting and setting variables.</p>
+</section>
+</section>
+<section id="module-polyparser-parser-stream">
+<span id="polyparser-parser-cursor"></span><h2>Module <code class="docutils literal notranslate"><span class="pre">polyparser.parser.stream</span></code><a class="headerlink" href="#module-polyparser-parser-stream" title="Permalink to this headline">¶</a></h2>
+<section id="class-parserstream-savestream-parsercursor">
+<h3><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">ParserStream(SaveStream[ParserCursor])</span></code><a class="headerlink" href="#class-parserstream-savestream-parsercursor" title="Permalink to this headline">¶</a></h3>
+<p>This object represents a stream of tokens as well as the
+values parsed with the prefix already parsed.</p>
+</section>
+</section>
+<section id="module-polyparser-parser-cursor">
+<h2>Module <code class="docutils literal notranslate"><span class="pre">polyparser.parser.cursor</span></code><a class="headerlink" href="#module-polyparser-parser-cursor" title="Permalink to this headline">¶</a></h2>
+<section id="class-parsercursor-savedstate">
+<h3><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">ParserCursor(SavedState)</span></code><a class="headerlink" href="#class-parsercursor-savedstate" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">ParserCursor</span></code> is the <code class="docutils literal notranslate"><span class="pre">SavedState</span></code> implementation used
+in the <a class="reference internal" href="io.html#polyparser-io-savestream"><span class="std std-ref">save stream</span></a>.
+It contains a list of tokens that can be polled
+and peeked like a queue using the <code class="docutils literal notranslate"><span class="pre">poll</span></code> and <code class="docutils literal notranslate"><span class="pre">peek</span></code> methods.
+It also contains the list of values that have been stored inside the state
+as well as a way to clear this list and retrieve all of the data inside using
+the <code class="docutils literal notranslate"><span class="pre">store</span></code> and <code class="docutils literal notranslate"><span class="pre">poll_stored</span></code> methods.</p>
+<p id="polyparser-parser-node">A <code class="docutils literal notranslate"><span class="pre">ParserNode</span></code> object represents a rule to parse the tokens inside the <code class="docutils literal notranslate"><span class="pre">ParserStream</span></code>.
+The set of primitives is described by the <code class="docutils literal notranslate"><span class="pre">PLY-BCK</span> <span class="pre">002</span> <span class="pre">-</span> <span class="pre">PolyParser</span></code> specification. Each
+<code class="docutils literal notranslate"><span class="pre">ParserNode</span></code> implements both the <code class="docutils literal notranslate"><span class="pre">call</span></code> and <code class="docutils literal notranslate"><span class="pre">evaluate</span></code> methods. These two methods
+take a <code class="docutils literal notranslate"><span class="pre">stream</span></code> and <code class="docutils literal notranslate"><span class="pre">context</span></code> parameters for the current state of the parsing, and the
+<code class="docutils literal notranslate"><span class="pre">call</span></code> method simulates a function being called and has thus a list of <code class="docutils literal notranslate"><span class="pre">arguments</span></code> that
+are themselves primitives or functions. They both return a parsing result, either <code class="docutils literal notranslate"><span class="pre">FAILED</span></code>,
+<code class="docutils literal notranslate"><span class="pre">SUCCESS</span></code> or <code class="docutils literal notranslate"><span class="pre">IGNORED</span></code>.</p>
+<p>When the <code class="docutils literal notranslate"><span class="pre">call</span></code> method is called on a primitive that
+does not implement a function-based architecture, if the list of arguments is empty, then it calls
+the <code class="docutils literal notranslate"><span class="pre">evaluate</span></code> method. Otherwise, it raises an exception. This exception might not have a good
+stack trace, so you need to be carefull when you write the generic parser.</p>
+</section>
+</section>
+<section id="module-polyparser-parser-primitives">
+<h2>Module <code class="docutils literal notranslate"><span class="pre">polyparser.parser.primitives</span></code><a class="headerlink" href="#module-polyparser-parser-primitives" title="Permalink to this headline">¶</a></h2>
+<section id="class-tokenprimitive">
+<h3><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">TokenPrimitive</span></code><a class="headerlink" href="#class-tokenprimitive" title="Permalink to this headline">¶</a></h3>
+<p>A token primitive parses a single token with a specific name.
+The constructor of the primitive takes the name of the token type
+it expects, whether to store it in the state (default is <code class="docutils literal notranslate"><span class="pre">False</span></code>) and
+the expected value of the token (default is <code class="docutils literal notranslate"><span class="pre">None</span></code> as the value can be anything).</p>
+</section>
+<section id="class-listprimitive">
+<h3><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">ListPrimitive</span></code><a class="headerlink" href="#class-listprimitive" title="Permalink to this headline">¶</a></h3>
+<p>The list primitive has a list of sub primitives, and both methods forward
+arguments to the sub primitives in order. The parser result will then be
+<code class="docutils literal notranslate"><span class="pre">FAILED</span></code> if at least one of the result is <code class="docutils literal notranslate"><span class="pre">FAILED</span></code>, <code class="docutils literal notranslate"><span class="pre">IGNORED</span></code> if all of them are <code class="docutils literal notranslate"><span class="pre">IGNORED</span></code>,
+and <code class="docutils literal notranslate"><span class="pre">SUCCESS</span></code> if at least one of them is <code class="docutils literal notranslate"><span class="pre">SUCCESS</span></code>. If the result is failed, the state is rolled back.</p>
+</section>
+<section id="class-orprimitive">
+<h3><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">OrPrimitive</span></code><a class="headerlink" href="#class-orprimitive" title="Permalink to this headline">¶</a></h3>
+<p>The or primitive allows to have a branch in the parsing.
+It has a list of subprimitives and tries to parse them in order,
+searching for the first that is successful, and in that case
+it returns <code class="docutils literal notranslate"><span class="pre">SUCCESS</span></code>. If none of them is successful,
+and one of them is ignored, then the branch is ignored.
+Otherwise, the or primitive fails.</p>
+</section>
+<section id="class-augmentedprimitive">
+<h3><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">AugmentedPrimitive</span></code><a class="headerlink" href="#class-augmentedprimitive" title="Permalink to this headline">¶</a></h3>
+<p>The augmented primitive allows to enhance the behaviour of
+a single primitive by passing its stored data in a python function
+and replacing the stored data by the result of this function.
+It also allows to repeat this behaviour once, making it optional, repeating
+it an arbitrary amount of time, or repeating it at least one time.</p>
+</section>
+<section id="class-callprimitive">
+<h3><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">CallPrimitive</span></code><a class="headerlink" href="#class-callprimitive" title="Permalink to this headline">¶</a></h3>
+<p>A call primitive allows to call a function with arguments.
+If we evaluate the primitive, then it is equivalent to calling the
+primitive with an empty list of arguments. If we call the primitive
+with a list of arguments, then it calls the target primitive (retrieved
+from the context with the given name), with the arguments from the current
+call primitive bound to the current context (using a <code class="docutils literal notranslate"><span class="pre">BoundNode</span></code>) extended by
+the old arguments.</p>
+</section>
+</section>
+<section id="module-polyparser-parser-function">
+<h2>Module <code class="docutils literal notranslate"><span class="pre">polyparser.parser.function</span></code><a class="headerlink" href="#module-polyparser-parser-function" title="Permalink to this headline">¶</a></h2>
+<section id="class-functionnode">
+<h3><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">FunctionNode</span></code><a class="headerlink" href="#class-functionnode" title="Permalink to this headline">¶</a></h3>
+<p>This primitive allows to represent a repetitive or recursive procedure that
+can have arguments. It is described by the name of the function, its sub procedure
+and the list of argument names. When being evaluated, it would bind itself to the context
+and would be stored inside the context to be called later. When being called, it would
+generate a new context from the bound context and adding the arguments to the context using the argument
+names in the same order.</p>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">polyparser</a></h1>
+
+
+
+
+
+
+
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script><h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Reference guides</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">API Reference</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="io.html">Input / Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lexer.html">Lexer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils.html">Utils</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Parser</a></li>
+<li class="toctree-l3"><a class="reference internal" href="language.html">Language Definition</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<h3>Versions</h3>
+<ul>
+    
+    <li><p style="margin: 0;"><a href="https://polympiads.github.io/polyparser/add-documentation">add-documentation</a> </p></li>
+    <li><p style="margin: 0;"><a href="https://polympiads.github.io/polyparser/add-io-utils">add-io-utils</a> </p></li>
+    <li><p style="margin: 0;"><a href="https://polympiads.github.io/polyparser/add-lexer">add-lexer</a> </p></li>
+    <li><p style="margin: 0;"><a href="https://polympiads.github.io/polyparser/add-parser">add-parser</a> (Current)</p></li>
+    <li><p style="margin: 0;"><a href="https://polympiads.github.io/polyparser/">release</a> </p></li>
+</ul>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2024, polympiads.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.3.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/reference/api/parser.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

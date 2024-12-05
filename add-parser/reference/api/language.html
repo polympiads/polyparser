@@ -1,0 +1,316 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Language Definition &#8212; polyparser 1.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="prev" title="Parser" href="parser.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="language-definition">
+<span id="language"></span><h1>Language Definition<a class="headerlink" href="#language-definition" title="Permalink to this headline">¶</a></h1>
+<p>This page documents the inner API of the <code class="docutils literal notranslate"><span class="pre">polyparser.language</span></code> package. It possesses the following interesting modules and classes</p>
+<ol class="arabic simple">
+<li><p><a class="reference internal" href="#polyparser-language"><span class="std std-ref">class Language</span></a> - Class representing a generic language</p></li>
+<li><p><a class="reference internal" href="#polyparser-poly-language"><span class="std std-ref">class PolyLanguage</span></a> - Class representing the poly language langue.</p></li>
+<li><p><a class="reference internal" href="#polyparser-source-language"><span class="std std-ref">class SourceLanguage</span></a> - Class representing a language with a source from poly language.</p></li>
+</ol>
+<section id="class-language">
+<span id="polyparser-language"></span><h2><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">Language</span></code><a class="headerlink" href="#class-language" title="Permalink to this headline">¶</a></h2>
+<p>A language is defined by its two main methods, <code class="docutils literal notranslate"><span class="pre">get_lexer</span></code> and <code class="docutils literal notranslate"><span class="pre">get_parser</span></code>,
+generating the lexer and parser for the specific language. It also defines a <code class="docutils literal notranslate"><span class="pre">parse</span></code>
+method taking a <code class="docutils literal notranslate"><span class="pre">FileReader</span></code> that handles all the computations to parse for the language.</p>
+</section>
+<section id="class-polylanguage">
+<span id="polyparser-poly-language"></span><h2><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">PolyLanguage</span></code><a class="headerlink" href="#class-polylanguage" title="Permalink to this headline">¶</a></h2>
+<p>This language is already defined and allows you to define the parser for a language
+in a simple programming language. The programming language has a simple syntax inspired
+from the Scala syntax. The primitive types used by augmented primitives can be passed as
+an argument to the constructor of the class. For a language to be valid, the only top level
+primitives are functions. The language will then automatically call the <code class="docutils literal notranslate"><span class="pre">main</span></code> function that
+should not take any arguments.</p>
+<p>The respective primitives can be written in the following ways :</p>
+<div class="highlight-polylanguage notranslate"><div class="highlight"><pre><span></span><span class="c"># Token Primitives</span>
+
+<span class="l">/TOKEN/</span>      <span class="c"># Expects token of type &quot;TOKEN&quot;</span>
+<span class="l">//NAME/</span>      <span class="c"># Expects token of type &quot;NAME&quot; and stores it in the state</span>
+<span class="l">/NAME:&quot;if&quot;/</span>  <span class="c"># Expects token of type &quot;NAME&quot; and value &quot;if&quot;</span>
+<span class="l">//NAME:&quot;if&quot;/</span> <span class="c"># Expects token of type &quot;NAME&quot; and value &quot;if&quot;</span>
+             <span class="c"># and stores it in the state</span>
+
+<span class="c"># List Primitive</span>
+
+<span class="k">[]</span>                 <span class="c"># Empty primitive</span>
+<span class="k">[</span> <span class="l">/IF/</span> <span class="l">/LB/</span> <span class="l">/RB/</span> <span class="k">]</span> <span class="c"># Primitive matching &quot;if ()&quot;</span>
+
+<span class="c"># Call Primitive</span>
+
+<span class="l">name</span>            <span class="c"># Call the &quot;name&quot; function</span>
+<span class="l">block(/INDENT/)</span> <span class="c"># Call the &quot;block&quot; function with a /INDENT/</span>
+<span class="l">f(f,</span> <span class="l">f(g))</span>      <span class="c"># Call the function &quot;f&quot;, with arguments</span>
+                <span class="c"># f and f(g) that can then be called</span>
+
+<span class="c"># Augmented Primitive</span>
+
+<span class="k">?</span><span class="l">//NAME/</span>           <span class="c"># An optional name</span>
+<span class="k">+</span><span class="l">//NAME/</span>           <span class="c"># A name that can be parsed an infinite amount of</span>
+                   <span class="c"># times, but needs to be parsed once.</span>
+<span class="k">*[</span><span class="l">/COMMA/</span> <span class="l">//NAME/</span><span class="k">]</span> <span class="c"># Parse as many times as you want</span>
+                   <span class="c"># a comma followed by a name</span>
+<span class="l">//STRING/</span><span class="k">^String</span>   <span class="c"># Find a STRING token and then preprocess it</span>
+                   <span class="c"># to remove the espace characters using the</span>
+                   <span class="c"># String primitive type given to poly language.</span>
+<span class="k">+</span><span class="l">//STRING/</span><span class="k">^String</span>  <span class="c"># Find many strings and preprocess all of them.</span>
+
+<span class="c"># Or Primitive</span>
+
+<span class="c"># An or primitive can be created by multiple augmented primitives</span>
+<span class="c"># separated by pipes to represent the choice.</span>
+
+<span class="l">a</span> <span class="k">|</span> <span class="l">b</span> <span class="k">|</span> <span class="l">c</span> <span class="c"># Choose the call primitive a or the call primitive b</span>
+          <span class="c"># or the primitive c.</span>
+
+<span class="l">//STRING/</span><span class="k">^String</span> <span class="k">|</span> <span class="k">[]</span> <span class="c"># Choose a string or an empty primitive,</span>
+                      <span class="c"># it is equivalent to an optional string.</span>
+
+<span class="c"># Function</span>
+
+<span class="c"># Function with no arguments and that parses a simple name</span>
+<span class="k">def</span> <span class="l">f</span> <span class="l">=</span>
+    <span class="l">//NAME/</span>
+
+<span class="c"># Function that parses a string and preprocesses it</span>
+<span class="k">def</span> <span class="l">string</span><span class="k">: String</span> <span class="l">=</span>
+    <span class="l">//STRING/</span>
+
+<span class="c"># Function that parses a string after an indentation</span>
+<span class="c"># specified as an argument, and that preprocesses the string.</span>
+<span class="k">def</span> <span class="l">block</span> <span class="l">(indent)</span><span class="k">: String</span> <span class="l">=</span>
+    <span class="l">indent</span> <span class="l">//STRING/</span>
+
+<span class="c"># Example on how to do a dependency / context injection</span>
+<span class="k">def</span> <span class="l">f(callback)</span> <span class="l">=</span>
+    <span class="k">def</span> <span class="l">g</span> <span class="l">=</span>
+        <span class="k">...</span>
+    <span class="l">callback(g)</span>
+</pre></div>
+</div>
+<p>One can write Poly Language easily in Poly Language in the following way :</p>
+<div class="highlight-polylanguage notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="l">token_primitive</span><span class="k">: TokenPrimitive</span> <span class="l">=</span>
+    <span class="l">/SLASH/</span> <span class="k">?</span><span class="l">//SLASH/</span> <span class="l">//NAME/</span> <span class="k">?[</span><span class="l">//TWODOTS/</span> <span class="l">//STRING/</span><span class="k">]</span> <span class="l">/SLASH/</span>
+
+<span class="k">def</span> <span class="l">list_primitive</span><span class="k">: ListPrimitive</span> <span class="l">=</span>
+    <span class="k">[</span><span class="l">/L_SQ_B/</span> <span class="k">*</span><span class="l">primitive</span> <span class="l">/R_SQ_B/</span><span class="k">]</span>
+
+<span class="k">def</span> <span class="l">call_primitive</span><span class="k">: CallPrimitive</span> <span class="l">=</span>
+    <span class="l">//NAME/</span> <span class="k">*[</span><span class="l">/L_B/</span> <span class="l">primitive</span> <span class="k">*[</span><span class="l">/COMMA/</span> <span class="l">primitive</span><span class="k">]</span> <span class="l">/R_B/</span><span class="k">]</span>
+
+<span class="k">def</span> <span class="l">simple_primitive</span> <span class="l">=</span>
+    <span class="l">token_primitive</span> <span class="k">|</span> <span class="l">call_primitive</span> <span class="k">|</span> <span class="l">list_primitive</span>
+<span class="k">def</span> <span class="l">augmented_primitive</span><span class="k">: AugmentedPrimitive</span> <span class="l">=</span>
+    <span class="k">?[</span><span class="l">//QMARK/</span> <span class="k">|</span> <span class="l">//PLUS/</span> <span class="k">|</span> <span class="l">//STAR/</span><span class="k">]</span> <span class="c"># ? | + | *</span>
+    <span class="l">simple_primitive</span>                <span class="c"># sub primitive</span>
+    <span class="k">?[</span><span class="l">//BIND/</span> <span class="l">//NAME/</span><span class="k">]</span>              <span class="c">#</span>
+
+<span class="k">def</span> <span class="l">or_primitive</span><span class="k">: OrPrimitive</span> <span class="l">=</span>
+    <span class="l">augmented_primitive</span> <span class="k">*[</span><span class="l">/OR/</span> <span class="l">augmented_primitive</span><span class="k">]</span>
+<span class="k">def</span> <span class="l">primitive</span> <span class="l">=</span> <span class="l">or_primitive</span>
+
+<span class="k">def</span> <span class="l">block(indent</span><span class="k">*</span><span class="l">)</span><span class="k">: ListPrimitive</span> <span class="l">=</span>
+    <span class="k">+[[</span><span class="l">indent</span> <span class="k">+</span><span class="l">primitive</span><span class="k">]</span> <span class="k">|</span> <span class="l">function(indent)</span><span class="k">]</span>
+
+<span class="k">def</span> <span class="l">function(indent</span><span class="k">*</span><span class="l">)</span><span class="k">: Function</span> <span class="l">=</span>
+    <span class="l">indent</span>
+    <span class="l">/DEFINE/</span> <span class="l">//NAME/</span>
+    <span class="k">*[</span><span class="l">/LB/</span> <span class="l">//NAME/</span> <span class="k">*[</span><span class="l">/COMMA/</span> <span class="l">//NAME/</span><span class="k">]</span> <span class="l">/RB/</span><span class="k">]</span>
+    <span class="l">/SET/</span>
+    <span class="l">block(indent</span> <span class="l">/INDENTATION/)</span>
+
+<span class="k">def</span> <span class="l">main</span> <span class="l">=</span>
+    <span class="l">block(</span><span class="k">[]</span><span class="l">)</span>
+</pre></div>
+</div>
+</section>
+<section id="class-sourcelanguage">
+<span id="polyparser-source-language"></span><h2><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">SourceLanguage</span></code><a class="headerlink" href="#class-sourcelanguage" title="Permalink to this headline">¶</a></h2>
+<p>A source language is a language that generates its parser using Poly Language. The
+language extending this abstract class should implement the <code class="docutils literal notranslate"><span class="pre">get_poly_language_source</span></code>
+and <code class="docutils literal notranslate"><span class="pre">get_transcripts</span></code>, returning respectively the <code class="docutils literal notranslate"><span class="pre">FileReader</span></code> for the language and
+the dictionnary for the primitive types of the augmented primitived of the language. One
+can also implement <code class="docutils literal notranslate"><span class="pre">get_entry_point</span></code> returning the entry point of the parser, by default
+<code class="docutils literal notranslate"><span class="pre">&quot;main&quot;</span></code>.</p>
+</section>
+<section id="class-jsonlanguage">
+<h2><code class="docutils literal notranslate"><span class="pre">class</span> <span class="pre">JsonLanguage</span></code><a class="headerlink" href="#class-jsonlanguage" title="Permalink to this headline">¶</a></h2>
+<p>WARNING, this language isn’t complete and does not contain the implementations for JSON
+numbers, booleans or null values.
+This is the main example of a <code class="docutils literal notranslate"><span class="pre">SourceLanguage</span></code>, which is defined in the following way :</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">JsonLanguage</span><span class="p">(</span><span class="n">SourceLanguage</span><span class="p">):</span>
+    <span class="n">alphabet</span><span class="p">:</span> <span class="kc">None</span> <span class="o">|</span> <span class="n">enum</span><span class="o">.</span><span class="n">Enum</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">alphabet</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">get_alphabet</span> <span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">alphabet</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">type_factory</span> <span class="o">=</span> <span class="n">TokenTypeFactory</span><span class="p">(</span> <span class="s2">&quot;json-type-factory&quot;</span> <span class="p">)</span>
+            <span class="n">type_factory</span><span class="o">.</span><span class="n">add_token_type</span><span class="p">(</span> <span class="s2">&quot;LCB&quot;</span> <span class="p">)</span> <span class="c1"># Left  Curly Bracket      &#39;{&#39;</span>
+            <span class="n">type_factory</span><span class="o">.</span><span class="n">add_token_type</span><span class="p">(</span> <span class="s2">&quot;RCB&quot;</span> <span class="p">)</span> <span class="c1"># Right Curly Bracket      &#39;}&#39;</span>
+            <span class="n">type_factory</span><span class="o">.</span><span class="n">add_token_type</span><span class="p">(</span> <span class="s2">&quot;LSB&quot;</span> <span class="p">)</span> <span class="c1"># Left  Squared Bracket    &#39;[&#39;</span>
+            <span class="n">type_factory</span><span class="o">.</span><span class="n">add_token_type</span><span class="p">(</span> <span class="s2">&quot;RSB&quot;</span> <span class="p">)</span> <span class="c1"># Right Squared Bracket    &#39;[&#39;</span>
+
+            <span class="n">type_factory</span><span class="o">.</span><span class="n">add_token_type</span><span class="p">(</span> <span class="s2">&quot;COMMA&quot;</span> <span class="p">)</span> <span class="c1"># COMMA                  &#39;,&#39;</span>
+            <span class="n">type_factory</span><span class="o">.</span><span class="n">add_token_type</span><span class="p">(</span> <span class="s2">&quot;EQUIV&quot;</span> <span class="p">)</span> <span class="c1"># EQUIV                  &#39;:&#39;</span>
+
+            <span class="n">type_factory</span><span class="o">.</span><span class="n">add_token_type</span><span class="p">(</span> <span class="s2">&quot;STRING&quot;</span> <span class="p">)</span> <span class="c1"># String</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">alphabet</span> <span class="o">=</span> <span class="n">type_factory</span><span class="o">.</span><span class="n">as_enumeration</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">alphabet</span>
+
+    <span class="k">def</span> <span class="nf">get_lexer</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Lexer</span><span class="p">:</span>
+        <span class="n">alphabet</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_alphabet</span><span class="p">()</span>
+
+        <span class="n">lexer</span> <span class="o">=</span> <span class="n">Lexer</span><span class="p">([</span>
+            <span class="n">StringLexerRule</span><span class="p">(</span> <span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">alphabet</span><span class="o">.</span><span class="n">STRING</span> <span class="p">),</span>
+            <span class="n">StringLexerRule</span><span class="p">(</span> <span class="s2">&quot;&#39;&quot;</span><span class="p">,</span>  <span class="n">alphabet</span><span class="o">.</span><span class="n">STRING</span> <span class="p">),</span>
+            <span class="n">KeywordLexerRule</span><span class="p">({</span>
+                <span class="s1">&#39;{&#39;</span><span class="p">:</span> <span class="n">alphabet</span><span class="o">.</span><span class="n">LCB</span><span class="p">,</span>
+                <span class="s1">&#39;}&#39;</span><span class="p">:</span> <span class="n">alphabet</span><span class="o">.</span><span class="n">RCB</span><span class="p">,</span>
+                <span class="s1">&#39;[&#39;</span><span class="p">:</span> <span class="n">alphabet</span><span class="o">.</span><span class="n">LSB</span><span class="p">,</span>
+                <span class="s1">&#39;]&#39;</span><span class="p">:</span> <span class="n">alphabet</span><span class="o">.</span><span class="n">RSB</span><span class="p">,</span>
+                <span class="s1">&#39;,&#39;</span><span class="p">:</span> <span class="n">alphabet</span><span class="o">.</span><span class="n">COMMA</span><span class="p">,</span>
+                <span class="s1">&#39;:&#39;</span><span class="p">:</span> <span class="n">alphabet</span><span class="o">.</span><span class="n">EQUIV</span>
+            <span class="p">}),</span>
+            <span class="n">IgnoreLexerRule</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">whitespace</span><span class="p">)</span>
+        <span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">lexer</span>
+    <span class="k">def</span> <span class="nf">get_poly_language_source</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FileReader</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">FileReader</span><span class="p">(</span><span class="s2">&quot;&lt;json-lang&gt;&quot;</span><span class="p">,</span> <span class="n">JSON_POLY_LANGUAGE_SOURCE</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">get_transcripts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;String&quot;</span><span class="p">:</span> <span class="k">lambda</span>  <span class="n">arg</span>  <span class="p">:</span> <span class="n">literal_eval</span><span class="p">(</span> <span class="n">arg</span><span class="o">.</span><span class="n">value</span> <span class="p">),</span>
+            <span class="s2">&quot;List&quot;</span>  <span class="p">:</span> <span class="k">lambda</span> <span class="o">*</span><span class="n">args</span> <span class="p">:</span> <span class="nb">list</span><span class="p">(</span> <span class="n">args</span> <span class="p">),</span>
+            <span class="s2">&quot;Map&quot;</span>   <span class="p">:</span> <span class="k">lambda</span> <span class="o">*</span><span class="n">args</span> <span class="p">:</span> <span class="p">{</span> <span class="n">args</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="p">:</span> <span class="n">args</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span> <span class="p">}</span>
+        <span class="p">}</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">JSON_POLY_LANGUAGE_SOURCE</span></code> contains the source code for the parser and contains the following data :</p>
+<div class="highlight-polylanguage notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="l">string</span><span class="k">: String</span> <span class="l">=</span>
+    <span class="l">//STRING/</span>
+<span class="k">def</span> <span class="l">list</span><span class="k">: List</span> <span class="l">=</span>
+    <span class="l">/LSB/</span> <span class="k">?[</span><span class="l">primitive</span> <span class="k">*[</span><span class="l">/COMMA/</span> <span class="l">primitive</span><span class="k">]]</span> <span class="l">/RSB/</span>
+<span class="k">def</span> <span class="l">map</span><span class="k">: Map</span> <span class="l">=</span>
+    <span class="l">/LCB/</span>
+    <span class="k">?[</span><span class="l">string</span> <span class="l">/EQUIV/</span> <span class="l">primitive</span> <span class="k">*[</span><span class="l">/COMMA/</span> <span class="l">string</span> <span class="l">/EQUIV/</span> <span class="l">primitive</span><span class="k">]]</span>
+    <span class="l">/RCB/</span>
+
+<span class="k">def</span> <span class="l">primitive</span> <span class="l">=</span>
+    <span class="l">map</span> <span class="k">|</span> <span class="l">list</span> <span class="k">|</span> <span class="l">string</span>
+
+<span class="k">def</span> <span class="l">main</span> <span class="l">=</span>
+    <span class="l">primitive</span>
+</pre></div>
+</div>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">polyparser</a></h1>
+
+
+
+
+
+
+
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script><h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Reference guides</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">API Reference</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="io.html">Input / Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="lexer.html">Lexer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils.html">Utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="parser.html">Parser</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Language Definition</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<h3>Versions</h3>
+<ul>
+    
+    <li><p style="margin: 0;"><a href="https://polympiads.github.io/polyparser/add-documentation">add-documentation</a> </p></li>
+    <li><p style="margin: 0;"><a href="https://polympiads.github.io/polyparser/add-io-utils">add-io-utils</a> </p></li>
+    <li><p style="margin: 0;"><a href="https://polympiads.github.io/polyparser/add-lexer">add-lexer</a> </p></li>
+    <li><p style="margin: 0;"><a href="https://polympiads.github.io/polyparser/add-parser">add-parser</a> (Current)</p></li>
+    <li><p style="margin: 0;"><a href="https://polympiads.github.io/polyparser/">release</a> </p></li>
+</ul>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2024, polympiads.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.3.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/reference/api/language.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
