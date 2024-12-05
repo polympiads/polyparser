@@ -1,7 +1,6 @@
 
 from typing import Self
 
-from polyparser.io.position import PositionRange
 from polyparser.io.savestream import SaveStream, SavedState
 
 """
@@ -23,6 +22,7 @@ class FileReaderState(SavedState):
 
     __start_line   : int
     __start_column : int
+    __start_offset : int
 
     __current_line   : int
     __current_column : int
@@ -48,6 +48,7 @@ class FileReaderState(SavedState):
 
             other.__start_line   = self.__current_line
             other.__start_column = self.__current_column
+            other.__start_offset = self.__offset
         other.__offset = self.__offset
 
         other.__current_line   = self.__current_line
@@ -71,7 +72,10 @@ class FileReaderState(SavedState):
             self.__reader,
             self.__start_line, self.__start_column, 
             self.__current_line   - self.__start_line   + 1,
-            self.__current_column )
+            self.__current_column,
+            self.__start_offset,
+            self.__offset - self.__start_offset
+        )
     
     @property
     def size (self):
@@ -92,13 +96,16 @@ class FileReader(SaveStream[FileReaderState]):
     __path    : str
     __content : str
 
-    def __init__(self, path: str):
+    def __init__(self, path: str, content: str):
         super().__init__( FileReaderState, self )
 
-        self.__path = path
-
+        self.__path    = path
+        self.__content = content
+    @staticmethod
+    def open (path: str):
         with open(path, "r") as file:
-            self.__content = file.read()
+            content = file.read()
+            return FileReader(path, content)
 
     @property
     def content (self):
@@ -106,3 +113,5 @@ class FileReader(SaveStream[FileReaderState]):
     @property
     def path (self):
         return self.__path
+
+from polyparser.io.position import PositionRange

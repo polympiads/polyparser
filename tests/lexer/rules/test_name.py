@@ -24,7 +24,7 @@ def test_name_valid ():
         )
 
 def test_name_rule ():
-    reader = FileReader( "tests/lexer/rules/file_tests/simple-name.txt" )
+    reader = FileReader.open( "tests/lexer/rules/file_tests/simple-name.txt" )
     
     rule = NameLexerRule("NAME")
 
