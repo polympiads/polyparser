@@ -4,6 +4,7 @@ import enum
 import json
 import random
 import string
+import time
 
 from polyparser.io.reader import FileReader
 from polyparser.languages.json import JsonLanguage
@@ -141,6 +142,8 @@ def random_json (maxdepth=3, edepth=1, maxamount=3):
     return random_string()
 
 def test_simple_json ():
+    json_langs = [ JsonLanguage(), JsonLanguage_V1() ]
+    
     for _ in range(10):
         _json = random_json()
 
@@ -149,9 +152,7 @@ def test_simple_json ():
         if random.choice([False, True]):
             string = string.replace("'", "\"")
 
-        json_langs = [ JsonLanguage(), JsonLanguage_V1() ]
-
         for json_lang in json_langs:
             json_result = json_lang.parse( FileReader( "<json>", string ) )
-            
+
             assert json_result[0] == _json

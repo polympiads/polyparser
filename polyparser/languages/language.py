@@ -356,3 +356,30 @@ class PolyLanguage(Language):
         FunctionNode( "main", CallPrimitive( "block", ListPrimitive() ), [] ).evaluate( stream, context )
 
         return FixedContextParser(context)
+
+class SourceLanguage (Language):
+    def __init__(self):
+        super().__init__()
+    def get_entry_point (self) -> str:
+        return "main"
+    def get_transcripts (self) -> Dict[str, Callable]:
+        raise NotImplementedError()
+    def get_poly_language_source (self) -> FileReader:
+        raise NotImplementedError()
+    def get_parser(self) -> Parser:
+        source   = self.get_poly_language_source()
+        augments = self.get_transcripts()
+
+        poly_language = PolyLanguage( augments )
+        result = poly_language.parse( source )
+        if len(result) == 1 and isinstance(result[0], ListPrimitive):
+            result = result[0].get_primitives()
+
+        context = ParserContext()
+        stream  = ParserStream ([])
+
+        for primitive in result:
+            assert isinstance(primitive, FunctionNode), "Top level primitives can only be functions"
+
+            primitive.evaluate( stream, context )
+        return FixedContextParser( context, self.get_entry_point() )

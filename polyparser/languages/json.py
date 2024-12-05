@@ -1,7 +1,9 @@
 
 import enum
 import string
-from polyparser.languages.language import Language
+from typing import Callable, Dict
+from polyparser.io.reader import FileReader
+from polyparser.languages.language import SourceLanguage
 from polyparser.lexer import Lexer
 from polyparser.lexer.rules.ignore import IgnoreLexerRule
 from polyparser.lexer.rules.keyword import KeywordLexerRule
@@ -16,8 +18,20 @@ from polyparser.parser.primitives.list import ListPrimitive
 from polyparser.parser.primitives.token import TokenPrimitive
 from ast import literal_eval
 
+JSON_POLY_LANGUAGE_SOURCE = """
+def string: String =
+    //STRING/
+def list: List =
+    /LSB/ ?[primitive *[/COMMA/ primitive]] /RSB/
+def map: Map =
+    /LCB/ ?[string /EQUIV/ primitive *[/COMMA/ string /EQUIV/ primitive]] /RCB/
+def primitive =
+    map | list | string
+def main =
+    primitive
+"""
 
-class JsonLanguage(Language):
+class JsonLanguage(SourceLanguage):
     alphabet: None | enum.Enum
     def __init__(self):
         self.alphabet = None
@@ -60,61 +74,11 @@ class JsonLanguage(Language):
         ])
 
         return lexer
-    def get_parser(self) -> Parser:
-        alphabet = self.get_alphabet()
-
-        context = ParserContext()
-
-        context.set_element( "string", AugmentedPrimitive(
-            TokenPrimitive("STRING", True),
-            prim_type=lambda x: literal_eval(x.value)))
-        context.set_element( "list", AugmentedPrimitive(
-                ListPrimitive(
-                    TokenPrimitive( "LSB" ),
-                    AugmentedPrimitive(
-                        ListPrimitive(
-                            CallPrimitive( "main" ),
-                            AugmentedPrimitive(
-                                ListPrimitive(
-                                    TokenPrimitive("COMMA"),
-                                    CallPrimitive("main")),
-                                augment=AugmentedType.ANY_AMOUNT),
-                            AugmentedPrimitive(
-                                TokenPrimitive("COMMA"),
-                                augment=AugmentedType.OPTIONAL)), 
-                        augment=AugmentedType.OPTIONAL),
-                    TokenPrimitive( "RSB" )
-                ),
-                prim_type=lambda *args: list(args)))
-        context.set_element( "dict.equiv", ListPrimitive(
-            CallPrimitive("string"),
-            TokenPrimitive("EQUIV"),
-            CallPrimitive("main")))
-        context.set_element( "dict", AugmentedPrimitive(
-                ListPrimitive(
-                    TokenPrimitive( "LCB" ),
-                    AugmentedPrimitive(
-                        ListPrimitive(
-                            CallPrimitive( "dict.equiv" ),
-                            AugmentedPrimitive(
-                                ListPrimitive(
-                                    TokenPrimitive("COMMA"),
-                                    CallPrimitive("dict.equiv")),
-                                augment=AugmentedType.ANY_AMOUNT),
-                            AugmentedPrimitive(
-                                TokenPrimitive("COMMA"),
-                                augment=AugmentedType.OPTIONAL)), 
-                        augment=AugmentedType.OPTIONAL),
-                    TokenPrimitive( "RCB" )
-                ),
-                prim_type=lambda *args: {
-                    args[i]:args[i + 1]
-                    for i in range(0, len(args), 2)
-                }))
-        context.set_element( "main", OrPrimitive(
-            CallPrimitive( "list" ),
-            CallPrimitive( "dict" ),
-            CallPrimitive( "string" )
-        ) )
-
-        return FixedContextParser(context)
+    def get_poly_language_source(self) -> FileReader:
+        return FileReader("<json-lang>", JSON_POLY_LANGUAGE_SOURCE)
+    def get_transcripts(self) -> Dict[str, Callable]:
+        return {
+            "String": lambda  arg  : literal_eval( arg.value ),
+            "List"  : lambda *args : list( args ),
+            "Map"   : lambda *args : { args[i] : args[i + 1] for i in range(0, len(args), 2) }
+        }

@@ -13,6 +13,8 @@ class ListPrimitive(ParserNode):
         super().__init__()
 
         self.__primitives = primitives
+    def get_primitives (self):
+        return list(self.__primitives)
     def call(self, stream: ParserStream, context: ParserContext, arguments: List[Any]):
         if len(arguments) == 0:
             return self.evaluate(stream, context)
