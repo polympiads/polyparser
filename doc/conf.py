@@ -39,7 +39,7 @@ html_version_root = "https://polympiads.github.io/polyparser/"
 html_sidebars = {
    '**': ['about.html', 'searchbox.html', 'navigation.html', 'versions.html']
 }
-#html_context = module.generate_gitdata(html_version_root)
+html_context = module.generate_gitdata(html_version_root)
 
 # PolyLanguage
 
